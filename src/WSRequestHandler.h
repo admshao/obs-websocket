@@ -22,10 +22,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #include <QHash>
 #include <QSet>
-#include <QWebSocket>
-#include <QWebSocketServer>
 
-#include <obs.hpp>
 #include <obs-frontend-api.h>
 
 #include "obs-websocket.h"

@@ -19,11 +19,10 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #ifndef WSSERVER_H
 #define WSSERVER_H
 
-#include <QObject>
-#include <QList>
-#include <QMutex>
-
 #include "WSRequestHandler.h"
+#include "obs-websocket.h"
+#include "Config.h"
+#include "Utils.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 QT_FORWARD_DECLARE_CLASS(QWebSocket)

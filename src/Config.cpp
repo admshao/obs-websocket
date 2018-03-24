@@ -47,9 +47,9 @@ Config::Config() :
         config_set_default_bool(obsConfig,
             SECTION_NAME, PARAM_AUTHREQUIRED, AuthRequired);
         config_set_default_string(obsConfig,
-            SECTION_NAME, PARAM_SECRET, QT_TO_UTF8(Secret));
+            SECTION_NAME, PARAM_SECRET, Secret.c_str());
         config_set_default_string(obsConfig,
-            SECTION_NAME, PARAM_SALT, QT_TO_UTF8(Salt));
+            SECTION_NAME, PARAM_SALT, Salt.c_str());
     }
 
     mbedtls_entropy_init(&entropy);
@@ -88,10 +88,8 @@ void Config::Save() {
     config_set_bool(obsConfig, SECTION_NAME, PARAM_ALERT, AlertsEnabled);
 
     config_set_bool(obsConfig, SECTION_NAME, PARAM_AUTHREQUIRED, AuthRequired);
-    config_set_string(obsConfig, SECTION_NAME, PARAM_SECRET,
-        QT_TO_UTF8(Secret));
-    config_set_string(obsConfig, SECTION_NAME, PARAM_SALT,
-        QT_TO_UTF8(Salt));
+    config_set_string(obsConfig, SECTION_NAME, PARAM_SECRET, Secret.c_str());
+    config_set_string(obsConfig, SECTION_NAME, PARAM_SALT, Salt.c_str());
 
     config_save(obsConfig);
 }

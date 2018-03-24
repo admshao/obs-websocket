@@ -16,19 +16,9 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <QtWebSockets/QWebSocket>
-#include <QtCore/QThread>
-#include <QtCore/QByteArray>
 #include <QMainWindow>
 #include <QMessageBox>
-#include <obs-frontend-api.h>
-
 #include "WSServer.h"
-#include "obs-websocket.h"
-#include "Config.h"
-#include "Utils.h"
-
-QT_USE_NAMESPACE
 
 WSServer* WSServer::Instance = nullptr;
 

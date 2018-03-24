@@ -16,9 +16,6 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <obs-frontend-api.h>
-
-#include "../obs-websocket.h"
 #include "../Config.h"
 #include "../WSServer.h"
 #include "settings-dialog.h"
@@ -78,10 +75,10 @@ void SettingsDialog::FormAccepted() {
 
     if (ui->authRequired->isChecked()) {
         if (ui->password->text() != CHANGE_ME) {
-            conf->SetPassword(ui->password->text());
+            conf->SetPassword(QT_TO_UTF8(ui->password->text()));
         }
 
-        if (!Config::Current()->Secret.isEmpty())
+        if (!Config::Current()->Secret.empty())
             conf->AuthRequired = true;
         else
             conf->AuthRequired = false;
