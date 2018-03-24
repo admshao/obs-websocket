@@ -19,10 +19,26 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <QString>
+#include <obs-frontend-api.h>
 
 #include <mbedtls/entropy.h>
 #include <mbedtls/ctr_drbg.h>
+#include <mbedtls/base64.h>
+#include <mbedtls/sha256.h>
+#include <string>
+
+#define SECTION_NAME "WebsocketAPI"
+#define PARAM_ENABLE "ServerEnabled"
+#define PARAM_PORT "ServerPort"
+#define PARAM_DEBUG "DebugEnabled"
+#define PARAM_ALERT "AlertsEnabled"
+#define PARAM_AUTHREQUIRED "AuthRequired"
+#define PARAM_SECRET "AuthSecret"
+#define PARAM_SALT "AuthSalt"
+
+#define QT_TO_UTF8(str) str.toUtf8().constData()
+
+using namespace std;
 
 class Config {
   public:
@@ -31,11 +47,10 @@ class Config {
     void Load();
     void Save();
 
-    void SetPassword(QString password);
-    bool CheckAuth(QString userChallenge);
-    QString GenerateSalt();
-    static QString GenerateSecret(
-        QString password, QString salt);
+    void SetPassword(string password);
+    bool CheckAuth(string userChallenge);
+    string GenerateSalt();
+    static string GenerateSecret(string password, string salt);
 
     bool ServerEnabled;
     uint64_t ServerPort;
@@ -44,9 +59,9 @@ class Config {
     bool AlertsEnabled;
 
     bool AuthRequired;
-    QString Secret;
-    QString Salt;
-    QString SessionChallenge;
+    string Secret;
+    string Salt;
+    string SessionChallenge;
     bool SettingsLoaded;
 
     static Config* Current();

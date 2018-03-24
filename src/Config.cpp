@@ -16,25 +16,8 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <mbedtls/base64.h>
-#include <mbedtls/sha256.h>
-#include <obs-frontend-api.h>
-#include <util/config-file.h>
-#include <string>
-
-#define SECTION_NAME "WebsocketAPI"
-#define PARAM_ENABLE "ServerEnabled"
-#define PARAM_PORT "ServerPort"
-#define PARAM_DEBUG "DebugEnabled"
-#define PARAM_ALERT "AlertsEnabled"
-#define PARAM_AUTHREQUIRED "AuthRequired"
-#define PARAM_SECRET "AuthSecret"
-#define PARAM_SALT "AuthSalt"
-
 #include "Config.h"
 #include "Utils.h"
-
-#define QT_TO_UTF8(str) str.toUtf8().constData()
 
 Config* Config::_instance = new Config();
 
@@ -113,75 +96,66 @@ void Config::Save() {
     config_save(obsConfig);
 }
 
-QString Config::GenerateSalt() {
+string Config::GenerateSalt() {
     // Generate 32 random chars
-    unsigned char* randomChars = (unsigned char*)bzalloc(32);
+    unsigned char* randomChars = (unsigned char*)bmalloc(32);
     mbedtls_ctr_drbg_random(&rng, randomChars, 32);
 
     // Convert the 32 random chars to a base64 string
-    char* salt = (char*)bzalloc(64);
+    unsigned char* salt = (unsigned char*)bmalloc(64);
     size_t saltBytes;
-    mbedtls_base64_encode(
-        (unsigned char*)salt, 64, &saltBytes,
-        randomChars, 32);
+    mbedtls_base64_encode(salt, 64, &saltBytes, randomChars, 32);
 
+    string ret = string((char *)salt);
     bfree(randomChars);
-    return salt;
+    bfree(salt);
+    return ret;
 }
 
-QString Config::GenerateSecret(QString password, QString salt) {
+string Config::GenerateSecret(string password, string salt) {
     // Concatenate the password and the salt
-    QString passAndSalt = "";
-    passAndSalt += password;
-    passAndSalt += salt;
+    string passAndSalt = password + salt;
 
     // Generate a SHA256 hash of the password
-    unsigned char* challengeHash = (unsigned char*)bzalloc(32);
-    mbedtls_sha256(
-        (unsigned char*)passAndSalt.toUtf8().constData(), passAndSalt.length(),
-        challengeHash, 0);
+    unsigned char* challengeHash = (unsigned char*)bmalloc(32);
+    mbedtls_sha256((unsigned char *)passAndSalt.c_str(), passAndSalt.length(),
+                    challengeHash, 0);
 
     // Encode SHA256 hash to Base64
-    char* challenge = (char*)bzalloc(64);
+    unsigned char* challenge = (unsigned char*)bmalloc(64);
     size_t challengeBytes = 0;
-    mbedtls_base64_encode(
-        (unsigned char*)challenge, 64, &challengeBytes,
-        challengeHash, 32);
+    mbedtls_base64_encode(challenge, 64, &challengeBytes, challengeHash, 32);
 
+    string ret = string((char *)challenge);
     bfree(challengeHash);
-    return challenge;
+    bfree(challenge);
+    return ret;
 }
 
-void Config::SetPassword(QString password) {
-    QString newSalt = GenerateSalt();
-    QString newChallenge = GenerateSecret(password, newSalt);
+void Config::SetPassword(string password) {
+    string newSalt = GenerateSalt();
+    string newChallenge = GenerateSecret(password, newSalt);
 
     this->Salt = newSalt;
     this->Secret = newChallenge;
 }
 
-bool Config::CheckAuth(QString response) {
+bool Config::CheckAuth(string response) {
     // Concatenate auth secret with the challenge sent to the user
-    QString challengeAndResponse = "";
-    challengeAndResponse += Secret;
-    challengeAndResponse += SessionChallenge;
+    string challengeAndResponse = Secret + SessionChallenge;
 
     // Generate a SHA256 hash of challengeAndResponse
-    unsigned char* hash = (unsigned char*)bzalloc(32);
-    mbedtls_sha256(
-        (unsigned char*)challengeAndResponse.toUtf8().constData(),
-        challengeAndResponse.length(),
-        hash, 0);
+    unsigned char* hash = (unsigned char*)bmalloc(32);
+    mbedtls_sha256((unsigned char *)challengeAndResponse.c_str(),
+                    challengeAndResponse.length(), hash, 0);
 
     // Encode the SHA256 hash to Base64
-    char* expectedResponse = (char*)bzalloc(64);
+    unsigned char* expectedResponse = (unsigned char*)bmalloc(64);
     size_t base64_size = 0;
-    mbedtls_base64_encode(
-        (unsigned char*)expectedResponse, 64, &base64_size,
-        hash, 32);
+    mbedtls_base64_encode(expectedResponse, 64, &base64_size, hash, 32);
 
     bool authSuccess = false;
-    if (response == QString(expectedResponse)) {
+    if (response == string((char*)expectedResponse)) {
         SessionChallenge = GenerateSalt();
         authSuccess = true;
     }

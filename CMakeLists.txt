@@ -9,8 +9,6 @@ set(CMAKE_AUTOUIC ON)
 include(external/FindLibObs.cmake)
 
 find_package(LibObs REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5WebSockets REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 
 set(ENABLE_PROGRAMS false)
@@ -65,8 +63,6 @@ add_dependencies(obs-websocket mbedcrypto websockets)
 
 include_directories( 
 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
-	${Qt5Core_INCLUDES}
-	${Qt5WebSockets_INCLUDES}
 	${Qt5Widgets_INCLUDES}
 	${mbedcrypto_INCLUDES}
 	"${CMAKE_SOURCE_DIR}/deps/mbedtls/include"
@@ -75,11 +71,9 @@ include_directories(
 
 target_link_libraries(obs-websocket 
 	libobs
-	Qt5::Core
-	Qt5::WebSockets
 	Qt5::Widgets
 	mbedcrypto
-		websockets)
+	websockets)
 
 # --- End of section ---
 
@@ -105,18 +99,6 @@ if(WIN32)
 	target_link_libraries(obs-websocket
 		"${OBS_FRONTEND_LIB}")
 
-	add_custom_command(TARGET obs-websocket POST_BUILD
-		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy
-			"${QTDIR}/bin/Qt5WebSockets.dll"
-			"${QTDIR}/bin/Qt5Network.dll"
-			"${CMAKE_BINARY_DIR}/$<CONFIG>")
-
-		COMMAND if $<CONFIG:Debug>==1 ("${CMAKE_COMMAND}" -E copy
-			"${QTDIR}/bin/Qt5WebSocketsd.dll"
-			"${QTDIR}/bin/Qt5Networkd.dll"
-			"${CMAKE_BINARY_DIR}/$<CONFIG>")
-	)
-
 	# --- Release package helper ---
 	# The "release" folder has a structure similar OBS' one on Windows
 	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
@@ -131,19 +113,7 @@ if(WIN32)
 			"${PROJECT_SOURCE_DIR}/data"
 			"${RELEASE_DIR}/data/obs-plugins/obs-websocket")
 
-		COMMAND if $<CONFIG:Release>==1 ("${CMAKE_COMMAND}" -E copy 
-			"$<TARGET_FILE:obs-websocket>"
-			"${QTDIR}/bin/Qt5WebSockets.dll" 
-			"${QTDIR}/bin/Qt5Network.dll" 
-			"${RELEASE_DIR}/obs-plugins/${ARCH_NAME}")
-
 		# Copy to obs-studio dev environment for immediate testing
-		COMMAND if $<CONFIG:Debug>==1 (
-			"${CMAKE_COMMAND}" -E copy
-				"$<TARGET_FILE:obs-websocket>"
-				"${QTDIR}/bin/Qt5WebSocketsd.dll"
-				"${QTDIR}/bin/Qt5Networkd.dll"
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}")
 
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E make_directory
