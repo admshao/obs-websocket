@@ -12,7 +12,9 @@
  * @category transitions
  * @since 4.1.0
  */
- void WSRequestHandler::HandleGetTransitionList(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetTransitionList(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
     obs_frontend_source_list transitionList = {};
     obs_frontend_get_transitions(&transitionList);
@@ -46,7 +48,9 @@
  * @category transitions
  * @since 0.3
  */
-void WSRequestHandler::HandleGetCurrentTransition(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetCurrentTransition(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSSourceAutoRelease currentTransition = obs_frontend_get_current_transition();
 
     OBSDataAutoRelease response = obs_data_create();
@@ -69,7 +73,9 @@ void WSRequestHandler::HandleGetCurrentTransition(WSRequestHandler* req) {
  * @category transitions
  * @since 0.3
  */
-void WSRequestHandler::HandleSetCurrentTransition(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetCurrentTransition(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("transition-name")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -93,7 +99,9 @@ void WSRequestHandler::HandleSetCurrentTransition(WSRequestHandler* req) {
  * @category transitions
  * @since 4.0.0
  */
-void WSRequestHandler::HandleSetTransitionDuration(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetTransitionDuration(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("duration")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -114,7 +122,9 @@ void WSRequestHandler::HandleSetTransitionDuration(WSRequestHandler* req) {
  * @category transitions
  * @since 4.1.0
  */
-void WSRequestHandler::HandleGetTransitionDuration(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetTransitionDuration(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSDataAutoRelease response = obs_data_create();
     obs_data_set_int(response, "transition-duration",
         Utils::GetTransitionDuration());

@@ -13,7 +13,9 @@
 * @category sources
 * @since 4.3.0
 */
-void WSRequestHandler::HandleGetSourcesList(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSourcesList(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     OBSDataArrayAutoRelease sourcesArray = obs_data_array_create();
 
     auto sourceEnumProc = [](void* privateData, obs_source_t* source) -> bool {
@@ -80,7 +82,9 @@ void WSRequestHandler::HandleGetSourcesList(WSRequestHandler* req) {
 * @category sources
 * @since 4.3.0
 */
-void WSRequestHandler::HandleGetSourceTypesList(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSourceTypesList(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSDataArrayAutoRelease idsArray = obs_data_array_create();
 
     const char* id;
@@ -149,7 +153,9 @@ void WSRequestHandler::HandleGetSourceTypesList(WSRequestHandler* req) {
 * @category sources
 * @since 4.0.0
 */
-void WSRequestHandler::HandleGetVolume(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetVolume(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -182,7 +188,9 @@ void WSRequestHandler::HandleGetVolume(WSRequestHandler* req) {
  * @category sources
  * @since 4.0.0
  */
- void WSRequestHandler::HandleSetVolume(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetVolume(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source") ||
         !req->hasField("volume"))
     {
@@ -222,7 +230,9 @@ void WSRequestHandler::HandleGetVolume(WSRequestHandler* req) {
 * @category sources
 * @since 4.0.0
 */
-void WSRequestHandler::HandleGetMute(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetMute(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source")) {
         req->SendErrorResponse("mssing request parameters");
         return;
@@ -258,7 +268,9 @@ void WSRequestHandler::HandleGetMute(WSRequestHandler* req) {
  * @category sources
  * @since 4.0.0
  */
-void WSRequestHandler::HandleSetMute(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetMute(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source") ||
         !req->hasField("mute")) {
         req->SendErrorResponse("mssing request parameters");
@@ -293,7 +305,9 @@ void WSRequestHandler::HandleSetMute(WSRequestHandler* req) {
 * @category sources
 * @since 4.0.0
 */
-void WSRequestHandler::HandleToggleMute(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleToggleMute(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -326,7 +340,9 @@ void WSRequestHandler::HandleToggleMute(WSRequestHandler* req) {
  * @category sources
  * @since 4.2.0
  */
-void WSRequestHandler::HandleSetSyncOffset(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSyncOffset(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source") || !req->hasField("offset")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -363,7 +379,9 @@ void WSRequestHandler::HandleSetSyncOffset(WSRequestHandler* req) {
  * @category sources
  * @since 4.2.0
  */
-void WSRequestHandler::HandleGetSyncOffset(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSyncOffset(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (!req->hasField("source")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -398,7 +416,9 @@ void WSRequestHandler::HandleGetSyncOffset(WSRequestHandler* req) {
 * @category sources
 * @since 4.3.0
 */
-void WSRequestHandler::HandleGetSourceSettings(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSourceSettings(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("sourceName")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -446,7 +466,9 @@ void WSRequestHandler::HandleGetSourceSettings(WSRequestHandler* req) {
 * @category sources
 * @since 4.3.0
 */
-void WSRequestHandler::HandleSetSourceSettings(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSourceSettings(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("sourceName") || !req->hasField("sourceSettings")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -526,7 +548,9 @@ void WSRequestHandler::HandleSetSourceSettings(WSRequestHandler* req) {
  * @category sources
  * @since 4.1.0
  */
- void WSRequestHandler::HandleGetTextGDIPlusProperties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetTextGDIPlusProperties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     // TODO: source settings are independent of any scene, so there's no need
     // to target a specific scene
 
@@ -603,7 +627,9 @@ void WSRequestHandler::HandleSetSourceSettings(WSRequestHandler* req) {
  * @category sources
  * @since 4.1.0
  */
-void WSRequestHandler::HandleSetTextGDIPlusProperties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetTextGDIPlusProperties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     // TODO: source settings are independent of any scene, so there's no need
     // to target a specific scene
 
@@ -819,7 +845,9 @@ void WSRequestHandler::HandleSetTextGDIPlusProperties(WSRequestHandler* req) {
  * @category sources
  * @since 4.x.x
  */
- void WSRequestHandler::HandleGetTextFreetype2Properties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetTextFreetype2Properties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     // TODO: source settings are independent of any scene, so there's no need
     // to target a specific scene
 
@@ -884,7 +912,9 @@ void WSRequestHandler::HandleSetTextGDIPlusProperties(WSRequestHandler* req) {
  * @category sources
  * @since 4.x.x
  */
-void WSRequestHandler::HandleSetTextFreetype2Properties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetTextFreetype2Properties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     // TODO: source settings are independent of any scene, so there's no need
     // to target a specific scene
 
@@ -1028,7 +1058,9 @@ void WSRequestHandler::HandleSetTextFreetype2Properties(WSRequestHandler* req) {
  * @category sources
  * @since 4.1.0
  */
-void WSRequestHandler::HandleGetBrowserSourceProperties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetBrowserSourceProperties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     // TODO: source settings are independent of any scene, so there's no need
     // to target a specific scene
 
@@ -1086,7 +1118,9 @@ void WSRequestHandler::HandleGetBrowserSourceProperties(WSRequestHandler* req) {
  * @category sources
  * @since 4.1.0
  */
-void WSRequestHandler::HandleSetBrowserSourceProperties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetBrowserSourceProperties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     // TODO: source settings are independent of any scene, so there's no need
     // to target a specific scene
 
@@ -1190,7 +1224,9 @@ void WSRequestHandler::HandleSetBrowserSourceProperties(WSRequestHandler* req) {
  * @category sources
  * @since unreleased
  */
-void WSRequestHandler::HandleDeleteSceneItem(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleDeleteSceneItem(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("item")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -1228,7 +1264,9 @@ void WSRequestHandler::HandleDeleteSceneItem(WSRequestHandler* req) {
  * @category sources
  * @since unreleased
  */
-void WSRequestHandler::HandleDuplicateSceneItem(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleDuplicateSceneItem(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("item")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -1287,7 +1325,9 @@ void WSRequestHandler::HandleDuplicateSceneItem(WSRequestHandler* req) {
  * @category sources
  * @since 4.1.0
  */
-void WSRequestHandler::HandleGetSpecialSources(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSpecialSources(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSDataAutoRelease response = obs_data_create();
 
     QMap<const char*, int> sources;

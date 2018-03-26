@@ -10,7 +10,9 @@
  * @category scenes
  * @since 0.3
  */
- void WSRequestHandler::HandleSetCurrentScene(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetCurrentScene(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("scene-name")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -38,7 +40,9 @@
  * @category scenes
  * @since 0.3
  */
-void WSRequestHandler::HandleGetCurrentScene(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetCurrentScene(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
     OBSDataArrayAutoRelease sceneItems = Utils::GetSceneItems(currentScene);
 
@@ -60,7 +64,9 @@ void WSRequestHandler::HandleGetCurrentScene(WSRequestHandler* req) {
  * @category scenes
  * @since 0.3
  */
-void WSRequestHandler::HandleGetSceneList(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSceneList(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     OBSSourceAutoRelease currentScene = obs_frontend_get_current_scene();
     OBSDataArrayAutoRelease scenes = Utils::GetScenes();
 
@@ -85,7 +91,9 @@ void WSRequestHandler::HandleGetSceneList(WSRequestHandler* req) {
 * @category scenes
 * @since unreleased
 */
-void WSRequestHandler::HandleSetSceneItemOrder(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSceneItemOrder(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     QString sceneName = obs_data_get_string(req->data, "scene");
     OBSSourceAutoRelease scene = Utils::GetSceneFromNameOrCurrent(sceneName);
     if (!scene) {

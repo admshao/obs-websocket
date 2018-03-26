@@ -8,7 +8,9 @@
 * @category replay buffer
 * @since 4.2.0
 */
-void WSRequestHandler::HandleStartStopReplayBuffer(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStartStopReplayBuffer(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (obs_frontend_replay_buffer_active()) {
         obs_frontend_replay_buffer_stop();
     } else {
@@ -29,7 +31,9 @@ void WSRequestHandler::HandleStartStopReplayBuffer(WSRequestHandler* req) {
 * @category replay buffer
 * @since 4.2.0
 */
-void WSRequestHandler::HandleStartReplayBuffer(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStartReplayBuffer(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!Utils::ReplayBufferEnabled()) {
         req->SendErrorResponse("replay buffer disabled in settings");
         return;
@@ -53,7 +57,9 @@ void WSRequestHandler::HandleStartReplayBuffer(WSRequestHandler* req) {
 * @category replay buffer
 * @since 4.2.0
 */
-void WSRequestHandler::HandleStopReplayBuffer(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStopReplayBuffer(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (obs_frontend_replay_buffer_active() == true) {
         obs_frontend_replay_buffer_stop();
         req->SendOKResponse();
@@ -72,7 +78,9 @@ void WSRequestHandler::HandleStopReplayBuffer(WSRequestHandler* req) {
 * @category replay buffer
 * @since 4.2.0
 */
-void WSRequestHandler::HandleSaveReplayBuffer(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSaveReplayBuffer(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!obs_frontend_replay_buffer_active()) {
         req->SendErrorResponse("replay buffer not active");
         return;

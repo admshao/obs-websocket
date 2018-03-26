@@ -47,6 +47,7 @@ private:
 	OBSDataAutoRelease SendOKResponse(OBSDataAutoRelease ret);
 	OBSDataAutoRelease SendErrorResponse(const char *error);
 
+	// General
 	static OBSDataAutoRelease HandleGetVersion(WSRequestHandler *req,
 			OBSDataAutoRelease data);
 	static OBSDataAutoRelease HandleGetAuthRequired(WSRequestHandler *req,
@@ -60,258 +61,155 @@ private:
 	static OBSDataAutoRelease HandleGetFilenameFormatting(
 			WSRequestHandler *req, OBSDataAutoRelease data);
 
-	static void HandleSetCurrentScene(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetCurrentScene(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSceneList(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleSetSceneItemOrder(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetSceneItemRender(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetSceneItemPosition(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetSceneItemTransform(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetSceneItemCrop(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSceneItemProperties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetSceneItemProperties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleDuplicateSceneItem(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleDeleteSceneItem(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleResetSceneItem(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetStreamingStatus(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStartStopStreaming(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStartStopRecording(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStartStreaming(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStopStreaming(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStartRecording(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStopRecording(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStartStopReplayBuffer(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStartReplayBuffer(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleStopReplayBuffer(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSaveReplayBuffer(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetRecordingFolder(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetRecordingFolder(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetTransitionList(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetCurrentTransition(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetCurrentTransition(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetVolume(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleGetVolume(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleToggleMute(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleSetMute(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleGetMute(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleSetSyncOffset(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSyncOffset(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSpecialSources(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSourcesList(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSourceTypesList(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetSourceSettings(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetSourceSettings(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetCurrentSceneCollection(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetCurrentSceneCollection(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleListSceneCollections(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetCurrentProfile(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetCurrentProfile(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleListProfiles(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleSetStreamSettings(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetStreamSettings(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSaveStreamSettings(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetTransitionDuration(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetTransitionDuration(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetStudioModeStatus(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetPreviewScene(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetPreviewScene(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleTransitionToProgram(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleEnableStudioMode(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleDisableStudioMode(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleToggleStudioMode(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetTextGDIPlusProperties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetTextGDIPlusProperties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetTextFreetype2Properties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetTextFreetype2Properties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleSetBrowserSourceProperties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetBrowserSourceProperties(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
+	// Profiles
+	static OBSDataAutoRelease HandleSetCurrentProfile(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetCurrentProfile(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleListProfiles(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+
+	// Recording
+	static OBSDataAutoRelease HandleStartStopRecording(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStartRecording(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStopRecording(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetRecordingFolder(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetRecordingFolder(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+
+	// Replay Buffer
+	static OBSDataAutoRelease HandleStartStopReplayBuffer(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStartReplayBuffer(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStopReplayBuffer(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSaveReplayBuffer(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+
+	// Scene Colletions
+	static OBSDataAutoRelease HandleSetCurrentSceneCollection(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetCurrentSceneCollection(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleListSceneCollections(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+
+	// Scene Items
+	static OBSDataAutoRelease HandleGetSceneItemProperties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSceneItemProperties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleResetSceneItem(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSceneItemRender(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSceneItemPosition(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSceneItemTransform(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSceneItemCrop(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+
+	// Scenes
+	static OBSDataAutoRelease HandleSetCurrentScene(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetCurrentScene(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetSceneList(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSceneItemOrder(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+
+	// Sources
+	static OBSDataAutoRelease HandleGetSourcesList(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetSourceTypesList(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetVolume(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetVolume(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetMute(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetMute(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleToggleMute(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSyncOffset(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetSyncOffset(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetSourceSettings(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetSourceSettings(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetTextGDIPlusProperties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetTextGDIPlusProperties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetTextFreetype2Properties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetTextFreetype2Properties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetBrowserSourceProperties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetBrowserSourceProperties(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleDeleteSceneItem(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleDuplicateSceneItem(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetSpecialSources(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+
+	// Streaming
+	static OBSDataAutoRelease HandleGetStreamingStatus(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStartStopStreaming(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStartStreaming(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleStopStreaming(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetStreamSettings(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetStreamSettings(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSaveStreamSettings(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+
+	// Studio Mode
+	static OBSDataAutoRelease HandleGetStudioModeStatus(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetPreviewScene(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetPreviewScene(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleTransitionToProgram(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleEnableStudioMode(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleDisableStudioMode(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleToggleStudioMode(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+
+	// Transitions
+	static OBSDataAutoRelease HandleGetTransitionList(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetCurrentTransition(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetCurrentTransition(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetTransitionDuration(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetTransitionDuration(
+			WSRequestHandler *req, OBSDataAutoRelease data);
 };
 
-#endif // WSPROTOCOL_H
+#endif // WSREQUESTHANDLER_H

@@ -16,7 +16,9 @@
  * @category streaming
  * @since 0.3
  */
- void WSRequestHandler::HandleGetStreamingStatus(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetStreamingStatus(
+                 WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSDataAutoRelease data = obs_data_create();
     obs_data_set_bool(data, "streaming", obs_frontend_streaming_active());
     obs_data_set_bool(data, "recording", obs_frontend_recording_active());
@@ -46,7 +48,9 @@
  * @category streaming
  * @since 0.3
  */
- void WSRequestHandler::HandleStartStopStreaming(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStartStopStreaming(
+                WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (obs_frontend_streaming_active())
         HandleStopStreaming(req);
     else
@@ -72,7 +76,9 @@
  * @category streaming
  * @since 4.1.0
  */
- void WSRequestHandler::HandleStartStreaming(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStartStreaming(WSRequestHandler *req,
+                OBSDataAutoRelease data)
+{
     if (obs_frontend_streaming_active() == false) {
         OBSService configuredService = obs_frontend_get_streaming_service();
         OBSService newService = nullptr;
@@ -168,7 +174,9 @@
  * @category streaming
  * @since 4.1.0
  */
-void WSRequestHandler::HandleStopStreaming(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStopStreaming(WSRequestHandler *req,
+                OBSDataAutoRelease data)
+{
     if (obs_frontend_streaming_active() == true) {
         obs_frontend_streaming_stop();
         req->SendOKResponse();
@@ -194,7 +202,9 @@ void WSRequestHandler::HandleStopStreaming(WSRequestHandler* req) {
  * @category streaming
  * @since 4.1.0
  */
- void WSRequestHandler::HandleSetStreamSettings(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetStreamSettings(
+                WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSService service = obs_frontend_get_streaming_service();
 
     OBSDataAutoRelease requestSettings = obs_data_get_obj(req->data, "settings");
@@ -257,7 +267,9 @@ void WSRequestHandler::HandleStopStreaming(WSRequestHandler* req) {
  * @category streaming
  * @since 4.1.0
  */
-void WSRequestHandler::HandleGetStreamSettings(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetStreamSettings(
+                WSRequestHandler *req, OBSDataAutoRelease data)
+{
     OBSService service = obs_frontend_get_streaming_service();
 
     const char* serviceType = obs_service_get_type(service);
@@ -278,7 +290,9 @@ void WSRequestHandler::HandleGetStreamSettings(WSRequestHandler* req) {
  * @category streaming
  * @since 4.1.0
  */
-void WSRequestHandler::HandleSaveStreamSettings(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSaveStreamSettings(
+                WSRequestHandler *req, OBSDataAutoRelease data)
+{
     obs_frontend_save_streaming_service();
     req->SendOKResponse();
 }

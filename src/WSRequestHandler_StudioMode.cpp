@@ -10,7 +10,9 @@
  * @category studio mode
  * @since 4.1.0
  */
- void WSRequestHandler::HandleGetStudioModeStatus(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetStudioModeStatus(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     bool previewActive = obs_frontend_preview_program_mode_active();
 
     OBSDataAutoRelease response = obs_data_create();
@@ -31,7 +33,9 @@
  * @category studio mode
  * @since 4.1.0
  */
-void WSRequestHandler::HandleGetPreviewScene(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetPreviewScene(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!obs_frontend_preview_program_mode_active()) {
         req->SendErrorResponse("studio mode not enabled");
         return;
@@ -58,7 +62,9 @@ void WSRequestHandler::HandleGetPreviewScene(WSRequestHandler* req) {
  * @category studio mode
  * @since 4.1.0
  */
-void WSRequestHandler::HandleSetPreviewScene(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetPreviewScene(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!obs_frontend_preview_program_mode_active()) {
         req->SendErrorResponse("studio mode not enabled");
         return;
@@ -93,7 +99,9 @@ void WSRequestHandler::HandleSetPreviewScene(WSRequestHandler* req) {
  * @category studio mode
  * @since 4.1.0
  */
-void WSRequestHandler::HandleTransitionToProgram(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleTransitionToProgram(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!obs_frontend_preview_program_mode_active()) {
         req->SendErrorResponse("studio mode not enabled");
         return;
@@ -137,7 +145,9 @@ void WSRequestHandler::HandleTransitionToProgram(WSRequestHandler* req) {
  * @category studio mode
  * @since 4.1.0
  */
-void WSRequestHandler::HandleEnableStudioMode(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleEnableStudioMode(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     obs_frontend_set_preview_program_mode(true);
     req->SendOKResponse();
 }
@@ -150,7 +160,9 @@ void WSRequestHandler::HandleEnableStudioMode(WSRequestHandler* req) {
  * @category studio mode
  * @since 4.1.0
  */
-void WSRequestHandler::HandleDisableStudioMode(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleDisableStudioMode(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     obs_frontend_set_preview_program_mode(false);
     req->SendOKResponse();
 }
@@ -163,7 +175,9 @@ void WSRequestHandler::HandleDisableStudioMode(WSRequestHandler* req) {
  * @category studio mode
  * @since 4.1.0
  */
-void WSRequestHandler::HandleToggleStudioMode(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleToggleStudioMode(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     bool previewProgramMode = obs_frontend_preview_program_mode_active();
     obs_frontend_set_preview_program_mode(!previewProgramMode);
     req->SendOKResponse();

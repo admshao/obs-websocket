@@ -8,7 +8,8 @@
  * @category recording
  * @since 0.3
  */
- void WSRequestHandler::HandleStartStopRecording(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStartStopRecording(WSRequestHandler* req, OBSDataAutoRelease data)
+{
     if (obs_frontend_recording_active())
         obs_frontend_recording_stop();
     else
@@ -26,7 +27,9 @@
  * @category recording
  * @since 4.1.0
  */
- void WSRequestHandler::HandleStartRecording(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStartRecording(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (obs_frontend_recording_active() == false) {
         obs_frontend_recording_start();
         req->SendOKResponse();
@@ -44,7 +47,9 @@
  * @category recording
  * @since 4.1.0
  */
-void WSRequestHandler::HandleStopRecording(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleStopRecording(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
     if (obs_frontend_recording_active() == true) {
         obs_frontend_recording_stop();
         req->SendOKResponse();
@@ -63,7 +68,9 @@ void WSRequestHandler::HandleStopRecording(WSRequestHandler* req) {
  * @category recording
  * @since 4.1.0
  */
- void WSRequestHandler::HandleSetRecordingFolder(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetRecordingFolder(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("rec-folder")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -87,7 +94,9 @@ void WSRequestHandler::HandleStopRecording(WSRequestHandler* req) {
  * @category recording
  * @since 4.1.0
  */
-void WSRequestHandler::HandleGetRecordingFolder(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetRecordingFolder(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     const char* recFolder = Utils::GetRecordingFolder();
 
     OBSDataAutoRelease response = obs_data_create();

@@ -32,7 +32,9 @@
 * @category scene items
 * @since 4.3.0
 */
-void WSRequestHandler::HandleGetSceneItemProperties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleGetSceneItemProperties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
     if (!req->hasField("item")) {
         req->SendErrorResponse("missing request parameters");
         return;
@@ -163,7 +165,9 @@ void WSRequestHandler::HandleGetSceneItemProperties(WSRequestHandler* req) {
 * @category scene items
 * @since 4.3.0
 */
-void WSRequestHandler::HandleSetSceneItemProperties(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSceneItemProperties(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
 	if (!req->hasField("item")) {
 		req->SendErrorResponse("missing request parameters");
 		return;
@@ -339,7 +343,9 @@ void WSRequestHandler::HandleSetSceneItemProperties(WSRequestHandler* req) {
 * @category scene items
 * @since 4.2.0
 */
-void WSRequestHandler::HandleResetSceneItem(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleResetSceneItem(WSRequestHandler *req,
+		OBSDataAutoRelease data)
+{
 	// TODO: remove this request, or refactor it to ResetSource
 
 	if (!req->hasField("item")) {
@@ -387,7 +393,9 @@ void WSRequestHandler::HandleResetSceneItem(WSRequestHandler* req) {
 * @since 0.3
 * @deprecated Since 4.3.0. Prefer the use of SetSceneItemProperties.
 */
-void WSRequestHandler::HandleSetSceneItemRender(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSceneItemRender(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
 	if (!req->hasField("source") ||
 		!req->hasField("render"))
 	{
@@ -436,7 +444,9 @@ void WSRequestHandler::HandleSetSceneItemRender(WSRequestHandler* req) {
 * @since 4.0.0
 * @deprecated Since 4.3.0. Prefer the use of SetSceneItemProperties.
 */
-void WSRequestHandler::HandleSetSceneItemPosition(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSceneItemPosition(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
 	if (!req->hasField("item") ||
 		!req->hasField("x") || !req->hasField("y")) {
 		req->SendErrorResponse("missing request parameters");
@@ -485,7 +495,9 @@ void WSRequestHandler::HandleSetSceneItemPosition(WSRequestHandler* req) {
 * @since 4.0.0
 * @deprecated Since 4.3.0. Prefer the use of SetSceneItemProperties.
 */
-void WSRequestHandler::HandleSetSceneItemTransform(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSceneItemTransform(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
 	if (!req->hasField("item") ||
 		!req->hasField("x-scale") ||
 		!req->hasField("y-scale") ||
@@ -540,7 +552,9 @@ void WSRequestHandler::HandleSetSceneItemTransform(WSRequestHandler* req) {
 * @since 4.1.0
 * @deprecated Since 4.3.0. Prefer the use of SetSceneItemProperties.
 */
-void WSRequestHandler::HandleSetSceneItemCrop(WSRequestHandler* req) {
+OBSDataAutoRelease WSRequestHandler::HandleSetSceneItemCrop(
+		WSRequestHandler *req, OBSDataAutoRelease data)
+{
 	if (!req->hasField("item")) {
 		req->SendErrorResponse("missing request parameters");
 		return;
