@@ -1,7 +1,4 @@
-#include <QString>
-#include "Utils.h"
-
-#include "WSRequestHandler.h"
+#include "WSEvents.h"
 
 /**
  * List of all transitions available in the frontend's dropdown menu.

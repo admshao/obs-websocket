@@ -20,7 +20,8 @@
 
 #include "WSRequestHandler.h"
 
-WSRequestHandler::WSRequestHandler() {
+WSRequestHandler::WSRequestHandler()
+{
 	authNotRequired.insert({
 			REQ_GET_VERSION, REQ_GET_AUTH_REQUIRED, REQ_AUTHENTICATE
 	});
@@ -114,7 +115,8 @@ WSRequestHandler::WSRequestHandler() {
 	messageMap[SET_BROWSER_SOURCE_PROPERTIES] = WSRequestHandler::HandleSetBrowserSourceProperties;
 }
 
-void WSRequestHandler::processIncomingMessage(void *in, size_t len) {
+void WSRequestHandler::processIncomingMessage(void *in, size_t len)
+{
 	OBSDataAutoRelease message = obs_data_create_from_json((char *)in);
 	if (!message) {
 		blog(LOG_ERROR, "invalid JSON payload received");
@@ -161,7 +163,7 @@ void WSRequestHandler::processIncomingMessage(void *in, size_t len) {
 	}
 }
 
-OBSDataAutoRelease SendOkResponse(OBSDataAutoRelease ret)
+OBSDataAutoRelease WSRequestHandler::SendOKResponse(OBSDataAutoRelease ret)
 {
 	if (!ret)
 		ret = obs_data_create();
@@ -169,7 +171,7 @@ OBSDataAutoRelease SendOkResponse(OBSDataAutoRelease ret)
 	return ret;
 }
 
-OBSDataAutoRelease SendErrorResponse(const char *error)
+OBSDataAutoRelease WSRequestHandler::SendErrorResponse(const char *error)
 {
 	obs_data_t *ret = obs_data_create();
 	obs_data_set_string(ret, "status", "error");
@@ -177,6 +179,7 @@ OBSDataAutoRelease SendErrorResponse(const char *error)
 	return ret;
 }
 
-bool WSRequestHandler::hasField(OBSDataAutoRelease data, const char* name) {
+bool WSRequestHandler::hasField(OBSDataAutoRelease data, const char* name)
+{
     return obs_data_has_user_value(data, name);
 }

@@ -33,41 +33,32 @@ class WSRequestHandler {
 public:
 	explicit WSRequestHandler();
 	void processIncomingMessage(void *in, size_t len);
-	bool WSRequestHandler::hasField(OBSDataAutoRelease data,
-			const char *name);
+	bool hasField(OBSDataAutoRelease data, const char *name);
 	string ip;
 	string name;
 	bool authenticated = false;
 
 private:
-	static map<string, void(*)(WSRequestHandler*,
+	static map<string, OBSDataAutoRelease(*)(WSRequestHandler*,
 			OBSDataAutoRelease)> messageMap;
 	static set<string> authNotRequired;
 	deque<OBSDataAutoRelease> messagesToSend;
 
-	OBSDataAutoRelease SendOkResponse(OBSDataAutoRelease ret);
+	OBSDataAutoRelease SendOKResponse(OBSDataAutoRelease ret);
 	OBSDataAutoRelease SendErrorResponse(const char *error);
 
-	static void HandleGetVersion(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleGetAuthRequired(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleAuthenticate(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleSetHeartbeat(WSRequestHandler *req, OBSDataAutoRelease
-	data);
-
-	static void HandleSetFilenameFormatting(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
-
-	static void HandleGetFilenameFormatting(WSRequestHandler *req,
-			OBSDataAutoRelease
-			data);
+	static OBSDataAutoRelease HandleGetVersion(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetAuthRequired(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleAuthenticate(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetHeartbeat(WSRequestHandler *req,
+			OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleSetFilenameFormatting(
+			WSRequestHandler *req, OBSDataAutoRelease data);
+	static OBSDataAutoRelease HandleGetFilenameFormatting(
+			WSRequestHandler *req, OBSDataAutoRelease data);
 
 	static void HandleSetCurrentScene(WSRequestHandler *req,
 			OBSDataAutoRelease

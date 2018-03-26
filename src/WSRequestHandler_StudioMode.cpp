@@ -1,7 +1,4 @@
-#include <QString>
-#include "Utils.h"
-
-#include "WSRequestHandler.h"
+#include "WSEvents.h"
 
 /**
  * Indicates if Studio Mode is currently enabled.

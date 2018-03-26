@@ -1,8 +1,4 @@
-#include <QString>
-#include "Utils.h"
 #include "WSEvents.h"
-
-#include "WSRequestHandler.h"
 
 #define STREAM_SERVICE_ID "websocket_custom_service"
 

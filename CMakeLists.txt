@@ -9,6 +9,7 @@ set(CMAKE_AUTOUIC ON)
 include(external/FindLibObs.cmake)
 
 find_package(LibObs REQUIRED)
+find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 
 set(ENABLE_PROGRAMS false)
@@ -63,6 +64,7 @@ add_dependencies(obs-websocket mbedcrypto websockets)
 
 include_directories( 
 	"${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api"
+	${Qt5Core_INCLUDES}
 	${Qt5Widgets_INCLUDES}
 	${mbedcrypto_INCLUDES}
 	"${CMAKE_SOURCE_DIR}/deps/mbedtls/include"
@@ -71,6 +73,7 @@ include_directories(
 
 target_link_libraries(obs-websocket 
 	libobs
+	Qt5::Core
 	Qt5::Widgets
 	mbedcrypto
 	websockets)

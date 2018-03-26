@@ -38,7 +38,7 @@ private:
 	volatile bool enabled = false;
 	struct lws_context *context;
 	struct lws_context_creation_info info;
-	inline ~WebsocketsServer()
+	inline ~WSServer()
 	{
 		Stop();
 	}

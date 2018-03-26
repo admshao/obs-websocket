@@ -1,7 +1,4 @@
-#include <QString>
-#include "Utils.h"
-
-#include "WSRequestHandler.h"
+#include "WSEvents.h"
 
 /**
  * Set the currently active profile.

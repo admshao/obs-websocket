@@ -52,7 +52,6 @@ class WSEvents {
         QListWidgetItem* current, QListWidgetItem* prev);
 
   private:
-    WSServer* _srv;
     OBSSource currentScene;
     OBSSource currentTransition;
 
