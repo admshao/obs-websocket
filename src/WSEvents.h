@@ -2,6 +2,7 @@
 obs-websocket
 Copyright (C) 2016-2017	Stéphane Lepin <stephane.lepin@gmail.com>
 Copyright (C) 2017	Brendan Hagan <https://github.com/haganbmj>
+Copyright (C) 2018	Fabio Madia <admshao@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,16 +21,15 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #ifndef WSEVENTS_H
 #define WSEVENTS_H
 
-#include <obs.hpp>
-#include <obs-frontend-api.h>
-#include <QListWidgetItem>
+#include "obs-websocket.h"
 #include "WSServer.h"
+#include <QListWidgetItem>
 
-class WSEvents : public QObject {
-  Q_OBJECT
+class WSEvents {
   public:
-    explicit WSEvents(WSServer* srv);
+    explicit WSEvents();
     ~WSEvents();
+	deque<OBSDataAutoRelease> updatesToSend;
     static void FrontendEventHandler(
         enum obs_frontend_event event, void* privateData);
     static WSEvents* Instance;

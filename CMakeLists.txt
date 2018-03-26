@@ -43,7 +43,7 @@ set(obs-websocket_SOURCES
 	src/WSEvents.cpp
 	src/Config.cpp
 	src/Utils.cpp
-	src/forms/settings-dialog.cpp src/Transport/WebsocketsServer.cpp)
+	src/forms/settings-dialog.cpp)
 
 set(obs-websocket_HEADERS
 	src/obs-websocket.h
@@ -52,7 +52,7 @@ set(obs-websocket_HEADERS
 	src/WSEvents.h
 	src/Config.h
 	src/Utils.h
-	src/forms/settings-dialog.h src/Transport/WebsocketsServer.h)
+	src/forms/settings-dialog.h)
 
 # --- Platform-independent build settings ---
 add_library(obs-websocket MODULE 

@@ -1,6 +1,7 @@
 /*
 obs-websocket
 Copyright (C) 2016-2017	Stéphane Lepin <stephane.lepin@gmail.com>
+Copyright (C) 2018      Fabio Madia <admshao@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -47,10 +48,10 @@ bool obs_module_load(void) {
     config->Load();
 
     WSServer::Instance = new WSServer();
-    WSEvents::Instance = new WSEvents(WSServer::Instance);
+    WSEvents::Instance = new WSEvents();
 
     if (config->ServerEnabled)
-        WSServer::Instance->Start(config->ServerPort);
+        WSServer::Instance->Start();
 
     // UI setup
     QAction* menu_action = (QAction*)obs_frontend_add_tools_menu_qaction(

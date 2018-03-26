@@ -1,6 +1,7 @@
 /*
 obs-websocket
 Copyright (C) 2016-2017	Stéphane Lepin <stephane.lepin@gmail.com>
+Copyright (C) 2018   	Fabio Madia <admshao@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,9 +17,10 @@ You should have received a copy of the GNU General Public License along
 with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-//#include <QMainWindow>
-//#include <QMessageBox>
+#include <QMainWindow>
+#include <QMessageBox>
 #include "WSServer.h"
+#include "WSEvents.h"
 
 WSServer* WSServer::Instance = nullptr;
 
@@ -47,12 +49,12 @@ void sendData(lws *wsi, obs_data_t *message)
 int callback_obsapi(struct lws *wsi, enum lws_callback_reasons reason,
 		void *user, void *in, size_t len)
 {
-	OBSAPIMessageHandler **userp;
-	OBSAPIMessageHandler *messageHandler;
+	WSRequestHandler** userp;
+	WSRequestHandler* messageHandler;
 	bool sendCallback = false;
 
 	if (user != NULL) {
-		userp = (OBSAPIMessageHandler **) user;
+		userp = (WSRequestHandler**) user;
 		messageHandler = *(userp);
 	}
 
@@ -68,9 +70,17 @@ int callback_obsapi(struct lws *wsi, enum lws_callback_reasons reason,
 		blog(LOG_INFO, "Established connection from %s (%s)",
 				client_name, client_ip);
 
-		*userp = new OBSAPIMessageHandler();
+		*userp = new WSRequestHandler();
 		(*userp)->ip = client_ip;
 		(*userp)->name = client_name;
+
+		obs_frontend_push_ui_translation(obs_module_get_string);
+		QString title = tr("OBSWebsocket.NotifyConnect.Title");
+		QString msg = tr("OBSWebsocket.NotifyConnect.Message")
+				.arg(client_ip);
+		obs_frontend_pop_ui_translation();
+
+		Utils::SysTrayNotify(msg, QSystemTrayIcon::Information, title);
 	}
 		break;
 	case LWS_CALLBACK_SERVER_WRITEABLE:
@@ -97,13 +107,21 @@ int callback_obsapi(struct lws *wsi, enum lws_callback_reasons reason,
 			lws_callback_on_writable(wsi);
 		break;
 	case LWS_CALLBACK_RECEIVE:
-		if (messageHandler->HandleReceivedMessage(in, len)) {
-			lws_callback_on_writable(wsi);
-		}
+		messageHandler->processIncomingMessage(in, len);
+		lws_callback_on_writable(wsi);
 		break;
 	case LWS_CALLBACK_CLOSED: {
-		blog(LOG_INFO, "Closed connection from %s (%s)",
+		blog(LOG_INFO, "client %s disconnected from (%s)",
 				(*userp)->name.c_str(), (*userp)->ip.c_str());
+
+		obs_frontend_push_ui_translation(obs_module_get_string);
+		QString title = tr("OBSWebsocket.NotifyDisconnect.Title");
+		QString msg = tr("OBSWebsocket.NotifyDisconnect.Message")
+				.arg((*userp)->ip.c_str());
+		obs_frontend_pop_ui_translation();
+
+		Utils::SysTrayNotify(msg, QSystemTrayIcon::Information, title);
+
 		delete (*userp);
 	}
 		break;
@@ -125,7 +143,7 @@ static struct lws_protocols protocols[] = {
 	{
 		WEBSOCKET_LWS_PROTOCOL_NAME,
 		callback_obsapi,
-		sizeof(OBSAPIMessageHandler *),
+		sizeof(WSRequestHandler*),
 		1024,
 	},
 	{NULL, NULL, 0, 0}
@@ -141,12 +159,23 @@ void WSServer::Loop()
 	info.extensions = exts;
 	context = lws_create_context(&info);
 	if (context == NULL) {
-		blog(LOG_ERROR, "libwebsocket init failed to create context!");
+		blog(LOG_ERROR, "libwebsocket init failed to create context on "
+				"TCP port %d", info.port);
+
+		QMainWindow* mainWindow = (QMainWindow*)obs_frontend_get_main_window();
+
+		obs_frontend_push_ui_translation(obs_module_get_string);
+		QString title = tr("OBSWebsocket.Server.StartFailed.Title");
+		QString msg = tr("OBSWebsocket.Server.StartFailed.Message")
+				.arg(info.port);
+		obs_frontend_pop_ui_translation();
+
+		QMessageBox::warning(mainWindow, title, msg);
 		return;
 	}
 	blog(LOG_INFO, "server started successfully on TCP port %d", info.port);
 
-	while (enabled || !obsremote_event_handler->updatesToSend.empty()) {
+	while (enabled || !WSEvents::Instance->updatesToSend.empty()) {
 		if (!obsremote_event_handler->updatesToSend.empty()) {
 			lws_callback_on_writable_all_protocol(context,
 					protocols);
@@ -168,9 +197,7 @@ void WSServer::Start()
 {
 	if (!th.joinable()) {
 		enabled = true;
-		th = thread([]()
-		{ obsremote_data->Loop(); });
-		obsremote_event_handler = new OBSRemoteEventHandler();
+		th = thread([]() { WSServer::Instance->Loop(); });
 	}
 }
 
@@ -179,127 +206,5 @@ void WSServer::Stop()
 	if (th.joinable()) {
 		enabled = false;
 		th.join();
-		delete obsremote_event_handler;
-		obsremote_event_handler = nullptr;
 	}
-}
-
-void WSServer::Start(quint16 port) {
-    if (port == _wsServer->serverPort())
-        return;
-
-    if(_wsServer->isListening())
-        Stop();
-
-    bool serverStarted = _wsServer->listen(QHostAddress::Any, port);
-    if (serverStarted) {
-        blog(LOG_INFO, "server started successfully on TCP port %d", port);
-
-        connect(_wsServer, SIGNAL(newConnection()),
-            this, SLOT(onNewConnection()));
-    }
-    else {
-        QString errorString = _wsServer->errorString();
-        blog(LOG_ERROR,
-            "error: failed to start server on TCP port %d: %s",
-            port, errorString.toUtf8().constData());
-
-        QMainWindow* mainWindow = (QMainWindow*)obs_frontend_get_main_window();
-
-        obs_frontend_push_ui_translation(obs_module_get_string);
-        QString title = tr("OBSWebsocket.Server.StartFailed.Title");
-        QString msg = tr("OBSWebsocket.Server.StartFailed.Message").arg(port);
-        obs_frontend_pop_ui_translation();
-
-        QMessageBox::warning(mainWindow, title, msg);
-    }
-}
-
-void WSServer::Stop() {
-    QMutexLocker locker(&_clMutex);
-    for(QWebSocket* pClient : _clients) {
-        pClient->close();
-    }
-    locker.unlock();
-
-    _wsServer->close();
-
-    blog(LOG_INFO, "server stopped successfully");
-}
-
-void WSServer::broadcast(QString message) {
-    QMutexLocker locker(&_clMutex);
-    for(QWebSocket* pClient : _clients) {
-        if (Config::Current()->AuthRequired
-            && (pClient->property(PROP_AUTHENTICATED).toBool() == false)) {
-            // Skip this client if unauthenticated
-            continue;
-        }
-        pClient->sendTextMessage(message);
-    }
-}
-
-void WSServer::onNewConnection() {
-    QWebSocket* pSocket = _wsServer->nextPendingConnection();
-    if (pSocket) {
-        connect(pSocket, SIGNAL(textMessageReceived(const QString&)),
-            this, SLOT(onTextMessageReceived(QString)));
-        connect(pSocket, SIGNAL(disconnected()),
-            this, SLOT(onSocketDisconnected()));
-
-        pSocket->setProperty(PROP_AUTHENTICATED, false);
-
-        QMutexLocker locker(&_clMutex);
-        _clients << pSocket;
-        locker.unlock();
-
-        QHostAddress clientAddr = pSocket->peerAddress();
-        QString clientIp = Utils::FormatIPAddress(clientAddr);
-
-        blog(LOG_INFO, "new client connection from %s:%d",
-            clientIp.toUtf8().constData(), pSocket->peerPort());
-
-        obs_frontend_push_ui_translation(obs_module_get_string);
-        QString title = tr("OBSWebsocket.NotifyConnect.Title");
-        QString msg = tr("OBSWebsocket.NotifyConnect.Message")
-            .arg(Utils::FormatIPAddress(clientAddr));
-        obs_frontend_pop_ui_translation();
-
-        Utils::SysTrayNotify(msg, QSystemTrayIcon::Information, title);
-    }
-}
-
-void WSServer::onTextMessageReceived(QString message) {
-    QWebSocket* pSocket = qobject_cast<QWebSocket*>(sender());
-    if (pSocket) {
-        WSRequestHandler handler(pSocket);
-        handler.processIncomingMessage(message);
-    }
-}
-
-void WSServer::onSocketDisconnected() {
-    QWebSocket* pSocket = qobject_cast<QWebSocket*>(sender());
-    if (pSocket) {
-        pSocket->setProperty(PROP_AUTHENTICATED, false);
-
-        QMutexLocker locker(&_clMutex);
-        _clients.removeAll(pSocket);
-        locker.unlock();
-
-        pSocket->deleteLater();
-
-        QHostAddress clientAddr = pSocket->peerAddress();
-        QString clientIp = Utils::FormatIPAddress(clientAddr);
-
-        blog(LOG_INFO, "client %s:%d disconnected",
-            clientIp.toUtf8().constData(), pSocket->peerPort());
-
-        obs_frontend_push_ui_translation(obs_module_get_string);
-        QString title = tr("OBSWebsocket.NotifyDisconnect.Title");
-        QString msg = tr("OBSWebsocket.NotifyDisconnect.Message")
-            .arg(Utils::FormatIPAddress(clientAddr));
-        obs_frontend_pop_ui_translation();
-
-        Utils::SysTrayNotify(msg, QSystemTrayIcon::Information, title);
-    }
 }

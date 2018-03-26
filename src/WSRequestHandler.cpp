@@ -2,6 +2,7 @@
  * obs-websocket
  * Copyright (C) 2016-2017	Stéphane Lepin <stephane.lepin@gmail.com>
  * Copyright (C) 2017	Mikhail Swift <https://github.com/mikhailswift>
+ * Copyright (C) 2018   Fabio Madia <admshao@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,206 +18,165 @@
  * with this program. If not, see <https://www.gnu.org/licenses/>
  */
 
-#include <obs-data.h>
-
-#include "Config.h"
-#include "Utils.h"
-
 #include "WSRequestHandler.h"
 
-QHash<QString, void(*)(WSRequestHandler*)> WSRequestHandler::messageMap {
-    { "GetVersion", WSRequestHandler::HandleGetVersion },
-    { "GetAuthRequired", WSRequestHandler::HandleGetAuthRequired },
-    { "Authenticate", WSRequestHandler::HandleAuthenticate },
+WSRequestHandler::WSRequestHandler() {
+	authNotRequired.insert({
+			REQ_GET_VERSION, REQ_GET_AUTH_REQUIRED, REQ_AUTHENTICATE
+	});
 
-    { "SetHeartbeat", WSRequestHandler::HandleSetHeartbeat },
+	messageMap[REQ_GET_VERSION]       = WSRequestHandler::HandleGetVersion;
+	messageMap[REQ_GET_AUTH_REQUIRED] = WSRequestHandler::HandleGetAuthRequired;
+	messageMap[REQ_AUTHENTICATE]      = WSRequestHandler::HandleAuthenticate;
 
-    { "SetFilenameFormatting", WSRequestHandler::HandleSetFilenameFormatting },
-    { "GetFilenameFormatting", WSRequestHandler::HandleGetFilenameFormatting },
+	messageMap[SET_HEART_BEAT] = WSRequestHandler::HandleSetHeartbeat;
 
-    { "SetCurrentScene", WSRequestHandler::HandleSetCurrentScene },
-    { "GetCurrentScene", WSRequestHandler::HandleGetCurrentScene },
-    { "GetSceneList", WSRequestHandler::HandleGetSceneList },
+	messageMap[SET_FILENAME_FORMATTING] = WSRequestHandler::HandleSetFilenameFormatting;
+	messageMap[GET_FILENAME_FORMATTING] = WSRequestHandler::HandleGetFilenameFormatting;
 
-    { "SetSceneItemOrder", WSRequestHandler::HandleSetSceneItemOrder },
-    { "SetSourceRender", WSRequestHandler::HandleSetSceneItemRender }, // Retrocompat
-    { "SetSceneItemRender", WSRequestHandler::HandleSetSceneItemRender },
-    { "SetSceneItemPosition", WSRequestHandler::HandleSetSceneItemPosition },
-    { "SetSceneItemTransform", WSRequestHandler::HandleSetSceneItemTransform },
-    { "SetSceneItemCrop", WSRequestHandler::HandleSetSceneItemCrop },
-    { "GetSceneItemProperties", WSRequestHandler::HandleGetSceneItemProperties },
-    { "SetSceneItemProperties", WSRequestHandler::HandleSetSceneItemProperties },
-    { "DuplicateSceneItem", WSRequestHandler::HandleDuplicateSceneItem },
-    { "DeleteSceneItem", WSRequestHandler::HandleDeleteSceneItem },
-    { "ResetSceneItem", WSRequestHandler::HandleResetSceneItem },
+	messageMap[SET_CURRENT_SCENE] = WSRequestHandler::HandleSetCurrentScene;
+	messageMap[GET_CURRENT_SCENE] = WSRequestHandler::HandleGetCurrentScene;
+	messageMap[GET_SCENE_LIST]    = WSRequestHandler::HandleGetSceneList;
 
-    { "GetStreamingStatus", WSRequestHandler::HandleGetStreamingStatus },
-    { "StartStopStreaming", WSRequestHandler::HandleStartStopStreaming },
-    { "StartStopRecording", WSRequestHandler::HandleStartStopRecording },
-    { "StartStreaming", WSRequestHandler::HandleStartStreaming },
-    { "StopStreaming", WSRequestHandler::HandleStopStreaming },
-    { "StartRecording", WSRequestHandler::HandleStartRecording },
-    { "StopRecording", WSRequestHandler::HandleStopRecording },
+	messageMap[SET_SCENE_ITEM_ORDER]      = WSRequestHandler::HandleSetSceneItemOrder;
+	messageMap[SET_SOURCE_RENDER]         = WSRequestHandler::HandleSetSceneItemRender;
+	messageMap[SET_SCENE_ITEM_RENDER]     = WSRequestHandler::HandleSetSceneItemRender;
+	messageMap[SET_SCENE_ITEM_POSITION]   = WSRequestHandler::HandleSetSceneItemPosition;
+	messageMap[SET_SCENE_ITEM_TRANSFORM]  = WSRequestHandler::HandleSetSceneItemTransform;
+	messageMap[SET_SCENE_ITEM_CROP]       = WSRequestHandler::HandleSetSceneItemCrop;
+	messageMap[GET_SCENE_ITEM_PROPERTIES] = WSRequestHandler::HandleGetSceneItemProperties;
+	messageMap[SET_SCENE_ITEM_PROPERTIES] = WSRequestHandler::HandleSetSceneItemProperties;
+	messageMap[DUPLICATE_SCENE_ITEM]      = WSRequestHandler::HandleDuplicateSceneItem;
+	messageMap[DELETE_SCENE_ITEM]         = WSRequestHandler::HandleDeleteSceneItem;
+	messageMap[RESET_SCENE_ITEM]          = WSRequestHandler::HandleResetSceneItem;
 
-    { "StartStopReplayBuffer", WSRequestHandler::HandleStartStopReplayBuffer },
-    { "StartReplayBuffer", WSRequestHandler::HandleStartReplayBuffer },
-    { "StopReplayBuffer", WSRequestHandler::HandleStopReplayBuffer },
-    { "SaveReplayBuffer", WSRequestHandler::HandleSaveReplayBuffer },
+	messageMap[GET_STREAMING_STATUS] = WSRequestHandler::HandleGetStreamingStatus;
+	messageMap[START_STOP_STREAMING] = WSRequestHandler::HandleStartStopStreaming;
+	messageMap[START_STOP_RECORDING] = WSRequestHandler::HandleStartStopRecording;
+	messageMap[START_STREAMING]      = WSRequestHandler::HandleStartStreaming;
+	messageMap[STOP_STREAMING]       = WSRequestHandler::HandleStopStreaming;
+	messageMap[START_RECORDING]      = WSRequestHandler::HandleStartRecording;
+	messageMap[STOP_RECORDING]       = WSRequestHandler::HandleStopRecording;
 
-    { "SetRecordingFolder", WSRequestHandler::HandleSetRecordingFolder },
-    { "GetRecordingFolder", WSRequestHandler::HandleGetRecordingFolder },
+	messageMap[START_STOP_REPLAY_BUFFER] = WSRequestHandler::HandleStartStopReplayBuffer;
+	messageMap[START_REPLAY_BUFFER]      = WSRequestHandler::HandleStartReplayBuffer;
+	messageMap[STOP_REPLAY_BUFFER]       = WSRequestHandler::HandleStopReplayBuffer;
+	messageMap[SAVE_REPLAY_BUFFER]       = WSRequestHandler::HandleSaveReplayBuffer;
 
-    { "GetTransitionList", WSRequestHandler::HandleGetTransitionList },
-    { "GetCurrentTransition", WSRequestHandler::HandleGetCurrentTransition },
-    { "SetCurrentTransition", WSRequestHandler::HandleSetCurrentTransition },
-    { "SetTransitionDuration", WSRequestHandler::HandleSetTransitionDuration },
-    { "GetTransitionDuration", WSRequestHandler::HandleGetTransitionDuration },
+	messageMap[SET_RECORDING_FOLDER] = WSRequestHandler::HandleSetRecordingFolder;
+	messageMap[GET_RECORDING_FOLDER] = WSRequestHandler::HandleGetRecordingFolder;
 
-    { "SetVolume", WSRequestHandler::HandleSetVolume },
-    { "GetVolume", WSRequestHandler::HandleGetVolume },
-    { "ToggleMute", WSRequestHandler::HandleToggleMute },
-    { "SetMute", WSRequestHandler::HandleSetMute },
-    { "GetMute", WSRequestHandler::HandleGetMute },
-    { "SetSyncOffset", WSRequestHandler::HandleSetSyncOffset },
-    { "GetSyncOffset", WSRequestHandler::HandleGetSyncOffset },
-    { "GetSpecialSources", WSRequestHandler::HandleGetSpecialSources },
-    { "GetSourcesList", WSRequestHandler::HandleGetSourcesList },
-    { "GetSourceTypesList", WSRequestHandler::HandleGetSourceTypesList },
-    { "GetSourceSettings", WSRequestHandler::HandleGetSourceSettings },
-    { "SetSourceSettings", WSRequestHandler::HandleSetSourceSettings },
+	messageMap[GET_TRANSITION_LIST]     = WSRequestHandler::HandleGetTransitionList;
+	messageMap[GET_CURRENT_TRANSITION]  = WSRequestHandler::HandleGetCurrentTransition;
+	messageMap[SET_CURRENT_TRANSITION]  = WSRequestHandler::HandleSetCurrentTransition;
+	messageMap[SET_TRANSITION_DURATION] = WSRequestHandler::HandleSetTransitionDuration;
+	messageMap[GET_TRANSITION_DURATION] = WSRequestHandler::HandleGetTransitionDuration;
 
-    { "SetCurrentSceneCollection", WSRequestHandler::HandleSetCurrentSceneCollection },
-    { "GetCurrentSceneCollection", WSRequestHandler::HandleGetCurrentSceneCollection },
-    { "ListSceneCollections", WSRequestHandler::HandleListSceneCollections },
+	messageMap[SET_VOLUME]            = WSRequestHandler::HandleSetVolume;
+	messageMap[GET_VOLUME]            = WSRequestHandler::HandleGetVolume;
+	messageMap[TOGGLE_MUTE]           = WSRequestHandler::HandleToggleMute;
+	messageMap[SET_MUTE]              = WSRequestHandler::HandleSetMute;
+	messageMap[GET_MUTE]              = WSRequestHandler::HandleGetMute;
+	messageMap[SET_SYNC_OFFSET]       = WSRequestHandler::HandleSetSyncOffset;
+	messageMap[GET_SYNC_OFFSET]       = WSRequestHandler::HandleGetSyncOffset;
+	messageMap[GET_SPECIAL_SOURCES]   = WSRequestHandler::HandleGetSpecialSources;
+	messageMap[GET_SOURCES_LIST]      = WSRequestHandler::HandleGetSourcesList;
+	messageMap[GET_SOURCE_TYPES_LIST] = WSRequestHandler::HandleGetSourceTypesList;
+	messageMap[GET_SOURCE_SETTINGS]   = WSRequestHandler::HandleGetSourceSettings;
+	messageMap[SET_SOURCE_SETTINGS]   = WSRequestHandler::HandleSetSourceSettings;
 
-    { "SetCurrentProfile", WSRequestHandler::HandleSetCurrentProfile },
-    { "GetCurrentProfile", WSRequestHandler::HandleGetCurrentProfile },
-    { "ListProfiles", WSRequestHandler::HandleListProfiles },
+	messageMap[SET_CURRENT_SCENE_COLLECTION] = WSRequestHandler::HandleSetCurrentSceneCollection;
+	messageMap[GET_CURRENT_SCENE_COLLECTION] = WSRequestHandler::HandleGetCurrentSceneCollection;
+	messageMap[LIST_SCENE_COLLECTIONS]       = WSRequestHandler::HandleListSceneCollections;
 
-    { "SetStreamSettings", WSRequestHandler::HandleSetStreamSettings },
-    { "GetStreamSettings", WSRequestHandler::HandleGetStreamSettings },
-    { "SaveStreamSettings", WSRequestHandler::HandleSaveStreamSettings },
+	messageMap[SET_CURRENT_PROFILE] = WSRequestHandler::HandleSetCurrentProfile;
+	messageMap[GET_CURRENT_PROFILE] = WSRequestHandler::HandleGetCurrentProfile;
+	messageMap[LIST_PROFILES]       = WSRequestHandler::HandleListProfiles;
 
-    { "GetStudioModeStatus", WSRequestHandler::HandleGetStudioModeStatus },
-    { "GetPreviewScene", WSRequestHandler::HandleGetPreviewScene },
-    { "SetPreviewScene", WSRequestHandler::HandleSetPreviewScene },
-    { "TransitionToProgram", WSRequestHandler::HandleTransitionToProgram },
-    { "EnableStudioMode", WSRequestHandler::HandleEnableStudioMode },
-    { "DisableStudioMode", WSRequestHandler::HandleDisableStudioMode },
-    { "ToggleStudioMode", WSRequestHandler::HandleToggleStudioMode },
+	messageMap[SET_STREAM_SETTINGS]  = WSRequestHandler::HandleSetStreamSettings;
+	messageMap[GET_STREAM_SETTINGS]  = WSRequestHandler::HandleGetStreamSettings;
+	messageMap[SAVE_STREAM_SETTINGS] = WSRequestHandler::HandleSaveStreamSettings;
 
-    { "SetTextGDIPlusProperties", WSRequestHandler::HandleSetTextGDIPlusProperties },
-    { "GetTextGDIPlusProperties", WSRequestHandler::HandleGetTextGDIPlusProperties },
-    { "SetTextFreetype2Properties", WSRequestHandler::HandleSetTextFreetype2Properties },
-    { "GetTextFreetype2Properties", WSRequestHandler::HandleGetTextFreetype2Properties },
+	messageMap[GET_STUDIO_MODE_STATUS] = WSRequestHandler::HandleGetStudioModeStatus;
+	messageMap[GET_PREVIEW_SCENE]      = WSRequestHandler::HandleGetPreviewScene;
+	messageMap[SET_PREVIEW_SCENE]      = WSRequestHandler::HandleSetPreviewScene;
+	messageMap[TRANSITION_TO_PROGRAM]  = WSRequestHandler::HandleTransitionToProgram;
+	messageMap[ENABLE_STUDIO_MODE]     = WSRequestHandler::HandleEnableStudioMode;
+	messageMap[DISABLE_STUDIO_MODE]    = WSRequestHandler::HandleDisableStudioMode;
+	messageMap[TOGGLE_STUDIO_MODE]     = WSRequestHandler::HandleToggleStudioMode;
 
-    { "GetBrowserSourceProperties", WSRequestHandler::HandleGetBrowserSourceProperties },
-    { "SetBrowserSourceProperties", WSRequestHandler::HandleSetBrowserSourceProperties }
-};
+	messageMap[SET_TEXT_GDI_PLUS_PROPERTIES]  = WSRequestHandler::HandleSetTextGDIPlusProperties;
+	messageMap[GET_TEXT_GDI_PLUS_PROPERTIES]  = WSRequestHandler::HandleGetTextGDIPlusProperties;
+	messageMap[SET_TEXT_FREETYPE2_PROPERTIES] = WSRequestHandler::HandleSetTextFreetype2Properties;
+	messageMap[GET_TEXT_FREETYPE2_PROPERTIES] = WSRequestHandler::HandleGetTextFreetype2Properties;
 
-QSet<QString> WSRequestHandler::authNotRequired {
-    "GetVersion",
-    "GetAuthRequired",
-    "Authenticate"
-};
+	messageMap[GET_BROWSER_SOURCE_PROPERTIES] = WSRequestHandler::HandleGetBrowserSourceProperties;
+	messageMap[SET_BROWSER_SOURCE_PROPERTIES] = WSRequestHandler::HandleSetBrowserSourceProperties;
+}
 
-WSRequestHandler::WSRequestHandler(QWebSocket* client) :
-    _messageId(0),
-    _requestType(""),
-    data(nullptr),
-    _client(client)
+void WSRequestHandler::processIncomingMessage(void *in, size_t len) {
+	OBSDataAutoRelease message = obs_data_create_from_json((char *)in);
+	if (!message) {
+		blog(LOG_ERROR, "invalid JSON payload received");
+		this->messagesToSend.push_back(SendErrorResponse(
+				"invalid JSON payload"));
+		return;
+	}
+
+	const char *type = obs_data_get_string(message, "request-type");
+	const char *id   = obs_data_get_string(message, "message-id");
+	if (!type || !id) {
+		this->messagesToSend.push_back(SendErrorResponse(
+				"message type not specified"));
+		return;
+	}
+
+	if (Config::Current()->DebugEnabled) {
+		blog(LOG_DEBUG, "Request >> '%s'", message);
+	}
+
+	OBSDataAutoRelease (*handlerFunc)(WSRequestHandler *,
+			OBSDataAutoRelease) = (messageMap[type]);
+	OBSDataAutoRelease ret = NULL;
+
+	if (handlerFunc) {
+		if (!Config::Current()->AuthRequired || this->authenticated ||
+				authNotRequired.find(type) !=
+						authNotRequired.end())
+			ret = handlerFunc(this, message);
+		else
+			ret = SendErrorResponse("Not Authenticated");
+	} else {
+		this->messagesToSend.push_back(SendErrorResponse(
+				"invalid request type"));
+		return;
+	}
+
+	if (ret) {
+		obs_data_set_string(ret, "message-id", id);
+		this->messagesToSend.push_back(ret);
+	} else {
+		this->messagesToSend.push_back(SendErrorResponse(
+				"no response given"));
+	}
+}
+
+OBSDataAutoRelease SendOkResponse(OBSDataAutoRelease ret)
 {
+	if (!ret)
+		ret = obs_data_create();
+	obs_data_set_string(ret, "status", "ok");
+	return ret;
 }
 
-void WSRequestHandler::processIncomingMessage(QString textMessage) {
-    QByteArray msgData = textMessage.toUtf8();
-    const char* msg = msgData.constData();
-
-    data = obs_data_create_from_json(msg);
-    if (!data) {
-        if (!msg)
-            msg = "<null pointer>";
-
-        blog(LOG_ERROR, "invalid JSON payload received for '%s'", msg);
-        SendErrorResponse("invalid JSON payload");
-        return;
-    }
-
-    if (Config::Current()->DebugEnabled) {
-        blog(LOG_DEBUG, "Request >> '%s'", msg);
-    }
-
-    if (!hasField("request-type")
-        || !hasField("message-id"))
-    {
-        SendErrorResponse("missing request parameters");
-        return;
-    }
-
-    _requestType = obs_data_get_string(data, "request-type");
-    _messageId = obs_data_get_string(data, "message-id");
-
-    if (Config::Current()->AuthRequired
-        && (_client->property(PROP_AUTHENTICATED).toBool() == false)
-        && (authNotRequired.find(_requestType) == authNotRequired.end()))
-    {
-        SendErrorResponse("Not Authenticated");
-        return;
-    }
-
-    void (*handlerFunc)(WSRequestHandler*) = (messageMap[_requestType]);
-
-    if (handlerFunc != nullptr)
-        handlerFunc(this);
-    else
-        SendErrorResponse("invalid request type");
+OBSDataAutoRelease SendErrorResponse(const char *error)
+{
+	obs_data_t *ret = obs_data_create();
+	obs_data_set_string(ret, "status", "error");
+	obs_data_set_string(ret, "error", error);
+	return ret;
 }
 
-WSRequestHandler::~WSRequestHandler() {
-}
-
-void WSRequestHandler::SendOKResponse(obs_data_t* additionalFields) {
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_string(response, "status", "ok");
-    obs_data_set_string(response, "message-id", _messageId);
-
-    if (additionalFields)
-        obs_data_apply(response, additionalFields);
-
-    SendResponse(response);
-}
-
-void WSRequestHandler::SendErrorResponse(const char* errorMessage) {
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_string(response, "status", "error");
-    obs_data_set_string(response, "error", errorMessage);
-    obs_data_set_string(response, "message-id", _messageId);
-
-    SendResponse(response);
-}
-
-void WSRequestHandler::SendErrorResponse(obs_data_t* additionalFields) {
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_string(response, "status", "error");
-    obs_data_set_string(response, "message-id", _messageId);
-
-    if (additionalFields)
-        obs_data_set_obj(response, "error", additionalFields);
-
-    SendResponse(response);
-}
-
-void WSRequestHandler::SendResponse(obs_data_t* response)  {
-    QString json = obs_data_get_json(response);
-    _client->sendTextMessage(json);
-
-    if (Config::Current()->DebugEnabled)
-        blog(LOG_DEBUG, "Response << '%s'", json.toUtf8().constData());
-}
-
-bool WSRequestHandler::hasField(QString name) {
-    if (!data || name.isEmpty() || name.isNull())
-        return false;
-
-    return obs_data_has_user_value(data, name.toUtf8());
+bool WSRequestHandler::hasField(OBSDataAutoRelease data, const char* name) {
+    return obs_data_has_user_value(data, name);
 }

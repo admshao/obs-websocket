@@ -2,6 +2,7 @@
  * obs-websocket
  * Copyright (C) 2016-2017	Stéphane Lepin <stephane.lepin@gmail.com>
  * Copyright (C) 2017	Brendan Hagan <https://github.com/haganbmj>
+ * Copyright (C) 2018           Fabio Madia <admsha@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +22,7 @@
 
 #include <QTimer>
 #include <QPushButton>
-
-#include "Config.h"
-#include "Utils.h"
 #include "WSEvents.h"
-
-#include "obs-websocket.h"
 
 bool transitionIsCut(obs_source_t* transition) {
     if (!transition)
@@ -64,8 +60,7 @@ void* calldata_get_ptr(const calldata_t* data, const char* name) {
 
 WSEvents* WSEvents::Instance = nullptr;
 
-WSEvents::WSEvents(WSServer* srv) {
-    _srv = srv;
+WSEvents::WSEvents() {
     obs_frontend_add_event_callback(WSEvents::FrontendEventHandler, this);
 
     QSpinBox* durationControl = Utils::GetTransitionDurationControl();
@@ -113,7 +108,7 @@ void WSEvents::deferredInitOperations() {
 void WSEvents::FrontendEventHandler(enum obs_frontend_event event, void* private_data) {
     WSEvents* owner = static_cast<WSEvents*>(private_data);
 
-    if (!owner->_srv)
+    if (!Config::Current()->ServerEnabled)
         return;
 
     if (event == OBS_FRONTEND_EVENT_SCENE_CHANGED) {
@@ -215,11 +210,10 @@ void WSEvents::broadcastUpdate(const char* updateType,
     if (additionalFields)
         obs_data_apply(update, additionalFields);
 
-    QString json = obs_data_get_json(update);
-    _srv->broadcast(json);
+    updatesToSend.push_back(update);
 
     if (Config::Current()->DebugEnabled)
-        blog(LOG_DEBUG, "Update << '%s'", json.toUtf8().constData());
+        blog(LOG_DEBUG, "Update << '%s'", obs_data_get_json(update));
 }
 
 void WSEvents::connectTransitionSignals(obs_source_t* transition) {
