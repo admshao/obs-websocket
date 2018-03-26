@@ -19,33 +19,28 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #ifndef WSSERVER_H
 #define WSSERVER_H
 
+#include <thread>
+#include <libwebsockets.h>
 #include "WSRequestHandler.h"
 #include "obs-websocket.h"
 #include "Config.h"
 #include "Utils.h"
 
-QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
-QT_FORWARD_DECLARE_CLASS(QWebSocket)
-
-class WSServer : public QObject {
-  Q_OBJECT
-  public:
-    explicit WSServer(QObject* parent = Q_NULLPTR);
-    virtual ~WSServer();
-    void Start(quint16 port);
-    void Stop();
-    void broadcast(QString message);
-    static WSServer* Instance;
-
-  private slots:
-    void onNewConnection();
-    void onTextMessageReceived(QString message);
-    void onSocketDisconnected();
-
-  private:
-    QWebSocketServer* _wsServer;
-    QList<QWebSocket*> _clients;
-    QMutex _clMutex;
+class WSServer {
+public:
+	void Loop();
+	void Start();
+	void Stop();
+	static WSServer* Instance;
+private:
+	thread th;
+	volatile bool enabled = false;
+	struct lws_context *context;
+	struct lws_context_creation_info info;
+	inline ~WebsocketsServer()
+	{
+		Stop();
+	}
 };
 
 #endif // WSSERVER_H

@@ -27,6 +27,11 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <mbedtls/sha256.h>
 #include <string>
 
+#define WEBSOCKET_LWS_SERVER_STRING "obs-websocket"
+#define WEBSOCKET_LWS_PROTOCOL_NAME "obswebsocketapi"
+
+#define DEFAULT_PORT 4444
+
 #define SECTION_NAME "WebsocketAPI"
 #define PARAM_ENABLE "ServerEnabled"
 #define PARAM_PORT "ServerPort"
@@ -53,7 +58,7 @@ class Config {
     static string GenerateSecret(string password, string salt);
 
     bool ServerEnabled;
-    uint64_t ServerPort;
+    uint16_t ServerPort;
 
     bool DebugEnabled;
     bool AlertsEnabled;

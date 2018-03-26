@@ -23,7 +23,7 @@ Config* Config::_instance = new Config();
 
 Config::Config() :
     ServerEnabled(true),
-    ServerPort(4444),
+    ServerPort(DEFAULT_PORT),
     DebugEnabled(false),
     AlertsEnabled(true),
     AuthRequired(false),
