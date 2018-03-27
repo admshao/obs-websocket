@@ -37,6 +37,8 @@ public:
 	string ip;
 	string name;
 	bool authenticated = false;
+	vector<pair<string, OBSDataAutoRelease(*)(WSRequestHandler *,
+			OBSDataAutoRelease)> > messageSortedKeys;
 
 private:
 	static map<string, OBSDataAutoRelease(*)(WSRequestHandler*,
@@ -44,7 +46,7 @@ private:
 	static set<string> authNotRequired;
 	deque<OBSDataAutoRelease> messagesToSend;
 
-	OBSDataAutoRelease SendOKResponse(OBSDataAutoRelease ret);
+	OBSDataAutoRelease SendOKResponse(OBSDataAutoRelease ret = nullptr);
 	OBSDataAutoRelease SendErrorResponse(const char *error);
 
 	// General

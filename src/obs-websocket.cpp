@@ -24,56 +24,57 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include "obs-websocket.h"
 #include "WSServer.h"
 #include "WSEvents.h"
-#include "Config.h"
 #include "forms/settings-dialog.h"
 
-void ___source_dummy_addref(obs_source_t*) {}
-void ___sceneitem_dummy_addref(obs_sceneitem_t*) {}
-void ___data_dummy_addref(obs_data_t*) {}
-void ___data_array_dummy_addref(obs_data_array_t*) {}
-void ___output_dummy_addref(obs_output_t*) {}
+void ___source_dummy_addref(obs_source_t *){}
+void ___sceneitem_dummy_addref(obs_sceneitem_t *){}
+void ___data_dummy_addref(obs_data_t *){}
+void ___data_array_dummy_addref(obs_data_array_t *){}
+void ___output_dummy_addref(obs_output_t *){}
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE("obs-websocket", "en-US")
 
-SettingsDialog* settings_dialog;
+SettingsDialog *settings_dialog;
 
-bool obs_module_load(void) {
-    blog(LOG_INFO, "you can haz websockets (version %s)", OBS_WEBSOCKET_VERSION);
-    blog(LOG_INFO, "qt version (compile-time): %s ; qt version (run-time): %s",
-        QT_VERSION_STR, qVersion());
+bool obs_module_load(void)
+{
+	blog(LOG_INFO, "you can haz websockets (version %s)",
+			OBS_WEBSOCKET_VERSION);
+	blog(LOG_INFO, "qt version (compile-time): %s ; qt version (run-time): "
+			"%s", QT_VERSION_STR, qVersion());
 
-    // Core setup
-    Config* config = Config::Current();
-    config->Load();
+	// Core setup
+	Config *config = Config::Current();
+	config->Load();
 
-    WSServer::Instance = new WSServer();
-    WSEvents::Instance = new WSEvents();
+	WSServer::Instance = new WSServer();
+	WSEvents::Instance = new WSEvents();
 
-    if (config->ServerEnabled)
-        WSServer::Instance->Start();
+	if (config->ServerEnabled)
+		WSServer::Instance->Start();
 
-    // UI setup
-    QAction* menu_action = (QAction*)obs_frontend_add_tools_menu_qaction(
-        obs_module_text("OBSWebsocket.Menu.SettingsItem"));
+	// UI setup
+	QAction *menu_action = (QAction *)obs_frontend_add_tools_menu_qaction(
+			obs_module_text("OBSWebsocket.Menu.SettingsItem"));
 
-    obs_frontend_push_ui_translation(obs_module_get_string);
-    QMainWindow* main_window = (QMainWindow*)obs_frontend_get_main_window();
-    settings_dialog = new SettingsDialog(main_window);
-    obs_frontend_pop_ui_translation();
+	obs_frontend_push_ui_translation(obs_module_get_string);
+	QMainWindow *main_window = (QMainWindow *)obs_frontend_get_main_window();
+	settings_dialog = new SettingsDialog(main_window);
+	obs_frontend_pop_ui_translation();
 
-    auto menu_cb = [] {
-        settings_dialog->ToggleShowHide();
-    };
-    menu_action->connect(menu_action, &QAction::triggered, menu_cb);
+	auto menu_cb = [] {
+		settings_dialog->ToggleShowHide();
+	};
+	menu_action->connect(menu_action, &QAction::triggered, menu_cb);
 
-    // Loading finished
-    blog(LOG_INFO, "module loaded!");
+	// Loading finished
+	blog(LOG_INFO, "module loaded!");
 
-    return true;
+	return true;
 }
 
-void obs_module_unload() {
-    blog(LOG_INFO, "goodbye!");
+void obs_module_unload()
+{
+	blog(LOG_INFO, "goodbye!");
 }
-

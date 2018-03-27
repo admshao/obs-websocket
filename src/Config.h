@@ -135,35 +135,36 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 using namespace std;
 
 class Config {
-  public:
-    Config();
-    ~Config();
-    void Load();
-    void Save();
+public:
+	Config();
+	~Config();
 
-    void SetPassword(string password);
-    bool CheckAuth(string userChallenge);
-    string GenerateSalt();
-    static string GenerateSecret(string password, string salt);
+	void Load();
+	void Save();
 
-    bool ServerEnabled;
-    uint16_t ServerPort;
+	void SetPassword(string password);
+	bool CheckAuth(string userChallenge);
+	string GenerateSalt();
+	static string GenerateSecret(string password, string salt);
 
-    bool DebugEnabled;
-    bool AlertsEnabled;
+	bool     ServerEnabled;
+	uint16_t ServerPort;
 
-    bool AuthRequired;
-    string Secret;
-    string Salt;
-    string SessionChallenge;
-    bool SettingsLoaded;
+	bool DebugEnabled;
+	bool AlertsEnabled;
 
-    static Config* Current();
+	bool   AuthRequired;
+	string Secret;
+	string Salt;
+	string SessionChallenge;
+	bool   SettingsLoaded;
 
-  private:
-    static Config* _instance;
-    mbedtls_entropy_context entropy;
-    mbedtls_ctr_drbg_context rng;
+	static Config *Current();
+
+private:
+	static Config            *_instance;
+	mbedtls_entropy_context  entropy;
+	mbedtls_ctr_drbg_context rng;
 };
 
 #endif // CONFIG_H

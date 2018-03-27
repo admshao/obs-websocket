@@ -1,6 +1,7 @@
 /*
 obs-websocket
 Copyright (C) 2016-2017	Stéphane Lepin <stephane.lepin@gmail.com>
+Copyright (C) 2018      Fabio Madia <admshao@gmail.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,59 +27,66 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <QLayout>
 #include <QListWidget>
 #include <QSystemTrayIcon>
-
+#include <string>
 #include <obs.hpp>
 #include <obs-module.h>
 #include <util/config-file.h>
 
-class Utils {
-  public:
-    static obs_data_array_t* StringListToArray(char** strings, char* key);
-    static obs_data_array_t* GetSceneItems(obs_source_t* source);
-    static obs_data_t* GetSceneItemData(obs_sceneitem_t* item);
-    static obs_sceneitem_t* GetSceneItemFromName(
-        obs_source_t* source, QString name);
-    static obs_sceneitem_t* GetSceneItemFromId(obs_source_t* source, size_t id);
-    static obs_sceneitem_t* GetSceneItemFromItem(obs_source_t* source, obs_data_t* item);
-    static obs_source_t* GetTransitionFromName(QString transitionName);
-    static obs_source_t* GetSceneFromNameOrCurrent(QString sceneName);
+using namespace std;
 
-    static bool IsValidAlignment(const uint32_t alignment);
+class Utils
+{
+public:
+	static obs_data_array_t *StringListToArray(char **strings, char *key);
 
-    static obs_data_array_t* GetScenes();
-    static obs_data_t* GetSceneData(obs_source_t* source);
+	static obs_data_array_t *GetSceneItems(obs_source_t *source);
+	static obs_data_t *GetSceneItemData(obs_sceneitem_t *item);
+	static obs_sceneitem_t *GetSceneItemFromName(
+			obs_source_t *source, QString name);
+	static obs_sceneitem_t *GetSceneItemFromId(obs_source_t *source,
+			size_t id);
+	static obs_sceneitem_t *GetSceneItemFromItem(obs_source_t *source,
+			obs_data_t *item);
+	static obs_source_t *GetTransitionFromName(QString transitionName);
+	static obs_source_t *GetSceneFromNameOrCurrent(QString sceneName);
 
-    static QSpinBox* GetTransitionDurationControl();
-    static int GetTransitionDuration();
-    static void SetTransitionDuration(int ms);
+	static bool IsValidAlignment(const uint32_t alignment);
 
-    static bool SetTransitionByName(QString transitionName);
+	static obs_data_array_t *GetScenes();
+	static obs_data_t *GetSceneData(obs_source_t *source);
 
-    static QPushButton* GetPreviewModeButtonControl();
-    static QLayout* GetPreviewLayout();
-    static QListWidget* GetSceneListControl();
-    static obs_scene_t* SceneListItemToScene(QListWidgetItem* item);
+	static QSpinBox *GetTransitionDurationControl();
+	static int GetTransitionDuration();
+	static void SetTransitionDuration(int ms);
+	static bool SetTransitionByName(QString transitionName);
 
-    static void TransitionToProgram();
+	static QPushButton *GetPreviewModeButtonControl();
+	static QLayout *GetPreviewLayout();
+	static QListWidget *GetSceneListControl();
+	static obs_scene_t *SceneListItemToScene(QListWidgetItem *item);
+	static void TransitionToProgram();
 
-    static QString OBSVersionString();
+	static string OBSVersionString();
 
-    static QSystemTrayIcon* GetTrayIcon();
-    static void SysTrayNotify(
-        QString &text,
-        QSystemTrayIcon::MessageIcon n,
-        QString title = QString("obs-websocket"));
+	static QSystemTrayIcon *GetTrayIcon();
+	static void SysTrayNotify(
+			QString &text,
+			QSystemTrayIcon::MessageIcon n,
+			QString title = QString("obs-websocket"));
 
-    static const char* GetRecordingFolder();
-    static bool SetRecordingFolder(const char* path);
+	static const char *GetRecordingFolder();
+	static bool SetRecordingFolder(const char *path);
 
-    static QString ParseDataToQueryString(obs_data_t* data);
-    static obs_hotkey_t* FindHotkeyByName(QString name);
-    static bool ReplayBufferEnabled();
-    static void StartReplayBuffer();
-    static bool IsRPHotkeySet();
-    static const char* GetFilenameFormatting();
-    static bool SetFilenameFormatting(const char* filenameFormatting);
+	static QString ParseDataToQueryString(obs_data_t *data);
+
+	static obs_hotkey_t *FindHotkeyByName(QString name);
+
+	static bool ReplayBufferEnabled();
+	static void StartReplayBuffer();
+	static bool IsRPHotkeySet();
+
+	static const char *GetFilenameFormatting();
+	static void SetFilenameFormatting(const char *filenameFormatting);
 };
 
 #endif // UTILS_H

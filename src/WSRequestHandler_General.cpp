@@ -3,10 +3,12 @@
 /**
  * Returns the latest version of the plugin and the API.
  *
- * @return {double} `version` OBSRemote compatible API version. Fixed to 1.1 for retrocompatibility.
+ * @return {double} `version` OBSRemote compatible API version. Fixed to 1.1 for
+ * retrocompatibility.
  * @return {String} `obs-websocket-version` obs-websocket plugin version.
  * @return {String} `obs-studio-version` OBS Studio program version.
- * @return {String} `available-requests` List of available request types, formatted as a comma-separated list string (e.g. : "Method1,Method2,Method3").
+ * @return {String} `available-requests` List of available request types,
+ * formatted as a comma-separated list string (e.g. : "Method1,Method2,Method3").
  *
  * @api requests
  * @name GetVersion
@@ -14,33 +16,30 @@
  * @since 0.3
  */
 OBSDataAutoRelease WSRequestHandler::HandleGetVersion(WSRequestHandler *req,
-                OBSDataAutoRelease data)
+		OBSDataAutoRelease data)
 {
-    QString obsVersion = Utils::OBSVersionString();
+	string obsVersion = Utils::OBSVersionString();
 
-    QList<QString> names = req->messageMap.keys();
-    names.sort(Qt::CaseInsensitive);
+	string requests;
+	for (auto reqName : req->messageSortedKeys)
+		requests += reqName.first + ",";
+	requests = requests.substr(0, requests.length() - 1);
 
-    // (Palakis) OBS' data arrays only support object arrays, so I improvised.
-    QString requests;
-    requests += names.takeFirst();
-    for (QString reqName : names) {
-        requests += ("," + reqName);
-    }
+	OBSDataAutoRelease resp = obs_data_create();
+	obs_data_set_string(resp, "obs-websocket-version",
+			OBS_WEBSOCKET_VERSION);
+	obs_data_set_string(resp, "obs-studio-version", obsVersion.c_str());
+	obs_data_set_string(resp, "available-requests", requests.c_str());
 
-    OBSDataAutoRelease data = obs_data_create();
-    obs_data_set_string(data, "obs-websocket-version", OBS_WEBSOCKET_VERSION);
-    obs_data_set_string(data, "obs-studio-version", obsVersion.toUtf8());
-    obs_data_set_string(data, "available-requests", requests.toUtf8());
-
-    return req->SendOKResponse(data);
+	UNUSED_PARAMETER(data);
+	return req->SendOKResponse(resp);
 }
 
 /**
- * Tells the client if authentication is required. If so, returns authentication parameters `challenge`
- * and `salt` (see "Authentication" for more information).
+ * Tells the client if authentication is required. If so, returns authentication
+ * parameters `challenge` and `salt` (see "Authentication" for more information)
  *
- * @return {boolean} `authRequired` Indicates whether authentication is required.
+ * @return {boolean} `authRequired` Indicates whether authentication is required
  * @return {String (optional)} `challenge`
  * @return {String (optional)} `salt`
  *
@@ -49,56 +48,52 @@ OBSDataAutoRelease WSRequestHandler::HandleGetVersion(WSRequestHandler *req,
  * @category general
  * @since 0.3
  */
-OBSDataAutoRelease WSRequestHandler::HandleGetAuthRequired(WSRequestHandler* req,
-                OBSDataAutoRelease data)
+OBSDataAutoRelease WSRequestHandler::HandleGetAuthRequired(
+		WSRequestHandler *req, OBSDataAutoRelease data)
 {
-    bool authRequired = Config::Current()->AuthRequired;
+	bool authRequired = Config::Current()->AuthRequired;
 
-    OBSDataAutoRelease data = obs_data_create();
-    obs_data_set_bool(data, "authRequired", authRequired);
+	OBSDataAutoRelease response = obs_data_create();
+	obs_data_set_bool(response, "authRequired", authRequired);
 
-    if (authRequired) {
-        obs_data_set_string(data, "challenge",
-            Config::Current()->SessionChallenge.toUtf8());
-        obs_data_set_string(data, "salt",
-            Config::Current()->Salt.toUtf8());
-    }
+	if (authRequired) {
+		obs_data_set_string(response, "challenge",
+				Config::Current()->SessionChallenge.c_str());
+		obs_data_set_string(response, "salt",
+				Config::Current()->Salt.c_str());
+	}
 
-    req->SendOKResponse(data);
+	UNUSED_PARAMETER(data);
+	return req->SendOKResponse(response);
 }
 
 /**
  * Attempt to authenticate the client to the server.
  *
- * @param {String} `auth` Response to the auth challenge (see "Authentication" for more information).
+ * @param {String} `auth` Response to the auth challenge (see "Authentication"
+ * for more information)
  *
  * @api requests
  * @name Authenticate
  * @category general
  * @since 0.3
  */
-OBSDataAutoRelease WSRequestHandler::HandleAuthenticate(WSRequestHandler* req,
+OBSDataAutoRelease WSRequestHandler::HandleAuthenticate(WSRequestHandler *req,
 		OBSDataAutoRelease data)
 {
-    if (!req->hasField("auth")) {
-        req->SendErrorResponse("missing request parameters");
-        return;
-    }
+	if (!req->hasField(data, "auth"))
+		return req->SendErrorResponse("missing request parameters");
 
-    QString auth = obs_data_get_string(req->data, "auth");
-    if (auth.isEmpty()) {
-        req->SendErrorResponse("auth not specified!");
-        return;
-    }
+	string auth = obs_data_get_string(data, "auth");
+	if (auth.empty())
+		return req->SendErrorResponse("auth not specified!");
 
-    if ((req->_client->property(PROP_AUTHENTICATED).toBool() == false)
-        && Config::Current()->CheckAuth(auth))
-    {
-        req->_client->setProperty(PROP_AUTHENTICATED, true);
-        req->SendOKResponse();
-    } else {
-        req->SendErrorResponse("Authentication Failed.");
-    }
+	if (Config::Current()->CheckAuth(auth)) {
+		req->authenticated = true;
+		return req->SendOKResponse();
+	}
+
+	return req->SendErrorResponse("Authentication Failed.");
 }
 
 /**
@@ -111,21 +106,20 @@ OBSDataAutoRelease WSRequestHandler::HandleAuthenticate(WSRequestHandler* req,
  * @category general
  * @since 4.3.0
  */
-OBSDataAutoRelease WSRequestHandler::HandleSetHeartbeat(WSRequestHandler* req,
+OBSDataAutoRelease WSRequestHandler::HandleSetHeartbeat(WSRequestHandler *req,
 		OBSDataAutoRelease data)
 {
-    if (!req->hasField("enable")) {
-        req->SendErrorResponse("Heartbeat <enable> parameter missing");
-        return;
-    }
+	if (!req->hasField(data, "enable"))
+		return req->SendErrorResponse(
+				"Heartbeat <enable> parameter missing");
 
-    WSEvents::Instance->HeartbeatIsActive =
-        obs_data_get_bool(req->data, "enable");
+	WSEvents::Instance->HeartbeatIsActive = obs_data_get_bool(data,
+			"enable");
 
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_bool(response, "enable",
-        WSEvents::Instance->HeartbeatIsActive);
-    req->SendOKResponse(response);
+	OBSDataAutoRelease response = obs_data_create();
+	obs_data_set_bool(response, "enable",
+			WSEvents::Instance->HeartbeatIsActive);
+	return req->SendOKResponse(response);
 }
 
 /**
@@ -141,18 +135,17 @@ OBSDataAutoRelease WSRequestHandler::HandleSetHeartbeat(WSRequestHandler* req,
 OBSDataAutoRelease WSRequestHandler::HandleSetFilenameFormatting(
 		WSRequestHandler *req, OBSDataAutoRelease data)
 {
-    if (!req->hasField("filename-formatting")) {
-        req->SendErrorResponse("<filename-formatting> parameter missing");
-        return;
-    }
+	if (!req->hasField(data, "filename-formatting"))
+		return req->SendErrorResponse(
+				"<filename-formatting> parameter missing");
 
-    QString filenameFormatting = obs_data_get_string(req->data, "filename-formatting");
-    if (!filenameFormatting.isEmpty()) {
-        Utils::SetFilenameFormatting(filenameFormatting.toUtf8());
-        req->SendOKResponse();
-    } else {
-        req->SendErrorResponse("invalid request parameters");
-    }
+	string filenameFormatting = obs_data_get_string(data,
+			"filename-formatting");
+	if (filenameFormatting.empty())
+		return req->SendErrorResponse("invalid request parameters");
+
+	Utils::SetFilenameFormatting(filenameFormatting.c_str());
+	return req->SendOKResponse();
 }
 
 /**
@@ -168,7 +161,9 @@ OBSDataAutoRelease WSRequestHandler::HandleSetFilenameFormatting(
 OBSDataAutoRelease WSRequestHandler::HandleGetFilenameFormatting(
 		WSRequestHandler *req, OBSDataAutoRelease data)
 {
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_string(response, "filename-formatting", Utils::GetFilenameFormatting());
-    req->SendOKResponse(response);
+	OBSDataAutoRelease response = obs_data_create();
+	obs_data_set_string(response, "filename-formatting",
+			Utils::GetFilenameFormatting());
+	UNUSED_PARAMETER(data);
+	return req->SendOKResponse(response);
 }
