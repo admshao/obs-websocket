@@ -15,14 +15,13 @@
  * @category general
  * @since 0.3
  */
-OBSDataAutoRelease WSRequestHandler::HandleGetVersion(WSRequestHandler *req,
-		OBSDataAutoRelease data)
+OBSDataAutoRelease WSRequestHandler::HandleGetVersion(WSRequestHandler *req)
 {
 	string obsVersion = Utils::OBSVersionString();
 
 	string requests;
-	for (auto reqName : req->messageSortedKeys)
-		requests += reqName.first + ",";
+	for (auto it : req->messageMap)
+		requests += it.first + ",";
 	requests = requests.substr(0, requests.length() - 1);
 
 	OBSDataAutoRelease resp = obs_data_create();
@@ -31,7 +30,6 @@ OBSDataAutoRelease WSRequestHandler::HandleGetVersion(WSRequestHandler *req,
 	obs_data_set_string(resp, "obs-studio-version", obsVersion.c_str());
 	obs_data_set_string(resp, "available-requests", requests.c_str());
 
-	UNUSED_PARAMETER(data);
 	return req->SendOKResponse(resp);
 }
 
@@ -49,7 +47,7 @@ OBSDataAutoRelease WSRequestHandler::HandleGetVersion(WSRequestHandler *req,
  * @since 0.3
  */
 OBSDataAutoRelease WSRequestHandler::HandleGetAuthRequired(
-		WSRequestHandler *req, OBSDataAutoRelease data)
+		WSRequestHandler *req)
 {
 	bool authRequired = Config::Current()->AuthRequired;
 
@@ -63,7 +61,6 @@ OBSDataAutoRelease WSRequestHandler::HandleGetAuthRequired(
 				Config::Current()->Salt.c_str());
 	}
 
-	UNUSED_PARAMETER(data);
 	return req->SendOKResponse(response);
 }
 
@@ -78,13 +75,12 @@ OBSDataAutoRelease WSRequestHandler::HandleGetAuthRequired(
  * @category general
  * @since 0.3
  */
-OBSDataAutoRelease WSRequestHandler::HandleAuthenticate(WSRequestHandler *req,
-		OBSDataAutoRelease data)
+OBSDataAutoRelease WSRequestHandler::HandleAuthenticate(WSRequestHandler *req)
 {
-	if (!req->hasField(data, "auth"))
+	if (!req->hasField("auth"))
 		return req->SendErrorResponse("missing request parameters");
 
-	string auth = obs_data_get_string(data, "auth");
+	string auth = obs_data_get_string(req->data, "auth");
 	if (auth.empty())
 		return req->SendErrorResponse("auth not specified!");
 
@@ -106,14 +102,13 @@ OBSDataAutoRelease WSRequestHandler::HandleAuthenticate(WSRequestHandler *req,
  * @category general
  * @since 4.3.0
  */
-OBSDataAutoRelease WSRequestHandler::HandleSetHeartbeat(WSRequestHandler *req,
-		OBSDataAutoRelease data)
+OBSDataAutoRelease WSRequestHandler::HandleSetHeartbeat(WSRequestHandler *req)
 {
-	if (!req->hasField(data, "enable"))
+	if (!req->hasField("enable"))
 		return req->SendErrorResponse(
 				"Heartbeat <enable> parameter missing");
 
-	WSEvents::Instance->HeartbeatIsActive = obs_data_get_bool(data,
+	WSEvents::Instance->HeartbeatIsActive = obs_data_get_bool(req->data,
 			"enable");
 
 	OBSDataAutoRelease response = obs_data_create();
@@ -133,13 +128,13 @@ OBSDataAutoRelease WSRequestHandler::HandleSetHeartbeat(WSRequestHandler *req,
  * @since 4.3.0
  */
 OBSDataAutoRelease WSRequestHandler::HandleSetFilenameFormatting(
-		WSRequestHandler *req, OBSDataAutoRelease data)
+		WSRequestHandler *req)
 {
-	if (!req->hasField(data, "filename-formatting"))
+	if (!req->hasField("filename-formatting"))
 		return req->SendErrorResponse(
 				"<filename-formatting> parameter missing");
 
-	string filenameFormatting = obs_data_get_string(data,
+	string filenameFormatting = obs_data_get_string(req->data,
 			"filename-formatting");
 	if (filenameFormatting.empty())
 		return req->SendErrorResponse("invalid request parameters");
@@ -159,11 +154,10 @@ OBSDataAutoRelease WSRequestHandler::HandleSetFilenameFormatting(
  * @since 4.3.0
  */
 OBSDataAutoRelease WSRequestHandler::HandleGetFilenameFormatting(
-		WSRequestHandler *req, OBSDataAutoRelease data)
+		WSRequestHandler *req)
 {
 	OBSDataAutoRelease response = obs_data_create();
 	obs_data_set_string(response, "filename-formatting",
 			Utils::GetFilenameFormatting());
-	UNUSED_PARAMETER(data);
 	return req->SendOKResponse(response);
 }

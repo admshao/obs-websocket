@@ -170,57 +170,51 @@ WSRequestHandler::WSRequestHandler()
 			WSRequestHandler::HandleSetTransitionDuration;
 	messageMap[GET_TRANSITION_DURATION] =
 			WSRequestHandler::HandleGetTransitionDuration;
-
-	for (auto itr = messageMap.begin(); itr != messageMap.end(); ++itr)
-		messageSortedKeys.push_back(*itr);
-	sort(messageSortedKeys.begin(), messageSortedKeys.end(),
-			messageMap.key_comp());
 }
 
 void WSRequestHandler::processIncomingMessage(void *in, size_t len)
 {
-	OBSDataAutoRelease message = obs_data_create_from_json((char *)in);
-	if (!message) {
+	this->data = obs_data_create_from_json((char *)in);
+	if (!this->data) {
 		blog(LOG_ERROR, "invalid JSON payload received");
-		this->messagesToSend.push_back(SendErrorResponse(
+		this->messagesToSend.emplace_back(SendErrorResponse(
 				"invalid JSON payload"));
 		return;
 	}
 
-	const char *type = obs_data_get_string(message, "request-type");
-	const char *id   = obs_data_get_string(message, "message-id");
+	const char *type = obs_data_get_string(this->data, "request-type");
+	const char *id   = obs_data_get_string(this->data, "message-id");
 	if (!type || !id) {
-		this->messagesToSend.push_back(SendErrorResponse(
+		this->messagesToSend.emplace_back(SendErrorResponse(
 				"message type not specified"));
 		return;
 	}
 
 	if (Config::Current()->DebugEnabled) {
-		blog(LOG_DEBUG, "Request >> '%s'", message);
+		blog(LOG_DEBUG, "Request >> '%s'", this->data);
 	}
 
-	OBSDataAutoRelease (*handlerFunc)(WSRequestHandler *,
-			OBSDataAutoRelease) = (messageMap[type]);
+	OBSDataAutoRelease (*handlerFunc)(WSRequestHandler *) =
+			(messageMap[type]);
 	OBSDataAutoRelease ret = NULL;
 
-	if (handlerFunc) {
-		if (!Config::Current()->AuthRequired || this->authenticated ||
-				authNotRequired.find(type) !=
-						authNotRequired.end())
-			ret = handlerFunc(this, message);
-		else
-			ret = SendErrorResponse("Not Authenticated");
-	} else {
-		this->messagesToSend.push_back(SendErrorResponse(
+	if (!handlerFunc) {
+		this->messagesToSend.emplace_back(SendErrorResponse(
 				"invalid request type"));
 		return;
 	}
 
+	if (!Config::Current()->AuthRequired || this->authenticated ||
+			authNotRequired.find(type) != authNotRequired.end())
+		ret = handlerFunc(this);
+	else
+		ret = SendErrorResponse("Not Authenticated");
+
 	if (ret) {
 		obs_data_set_string(ret, "message-id", id);
-		this->messagesToSend.push_back(ret);
+		this->messagesToSend.emplace_back(ret);
 	} else {
-		this->messagesToSend.push_back(SendErrorResponse(
+		this->messagesToSend.emplace_back(SendErrorResponse(
 				"no response given"));
 	}
 }
@@ -233,15 +227,17 @@ OBSDataAutoRelease WSRequestHandler::SendOKResponse(OBSDataAutoRelease ret)
 	return ret;
 }
 
-OBSDataAutoRelease WSRequestHandler::SendErrorResponse(const char *error)
+OBSDataAutoRelease WSRequestHandler::SendErrorResponse(const char *error,
+		OBSDataAutoRelease ret)
 {
-	obs_data_t *ret = obs_data_create();
+	if (!ret)
+		ret = obs_data_create();
 	obs_data_set_string(ret, "status", "error");
 	obs_data_set_string(ret, "error", error);
 	return ret;
 }
 
-bool WSRequestHandler::hasField(OBSDataAutoRelease data, const char *name)
+bool WSRequestHandler::hasField(const char *name)
 {
-	return obs_data_has_user_value(data, name);
+	return obs_data_has_user_value(this->data, name);
 }

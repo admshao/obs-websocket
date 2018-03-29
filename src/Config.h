@@ -33,6 +33,8 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 
 #define DEFAULT_PORT 4444
 
+#define STREAM_SERVICE_ID "websocket_custom_service"
+
 #define SECTION_NAME "WebsocketAPI"
 #define PARAM_ENABLE "ServerEnabled"
 #define PARAM_PORT "ServerPort"

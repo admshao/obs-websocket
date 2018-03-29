@@ -18,6 +18,7 @@ add_subdirectory(deps/mbedtls EXCLUDE_FROM_ALL)
 
 set(LWS_WITH_SHARED OFF)
 set(LWS_WITH_STATIC ON)
+set(LWS_STATIC_PIC ON)
 set(LWS_WITH_SSL OFF)
 #set(LWS_WITH_MBEDTLS ON)
 #set(MBEDCRYPTO_LIBRARY "")
@@ -71,7 +72,7 @@ include_directories(
 	${websockets_INCLUDES}
 	"${CMAKE_SOURCE_DIR}/deps/libwebsockets/lib")
 
-target_link_libraries(obs-websocket 
+target_link_libraries(obs-websocket
 	libobs
 	Qt5::Core
 	Qt5::Widgets
@@ -84,7 +85,7 @@ target_link_libraries(obs-websocket
 if(WIN32)
 	if(NOT DEFINED OBS_FRONTEND_LIB)
 		set(OBS_FRONTEND_LIB "OBS_FRONTEND_LIB-NOTFOUND" CACHE FILEPATH "OBS frontend library")
-		message(FATAL_ERROR "Could not find OBS Frontend API\'s library !")
+		message(FATAL_ERROR "Could not find OBS Frontend API's library !")
 	endif()
 
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -134,12 +135,16 @@ endif()
 
 # --- Linux-specific build settings and tasks ---
 if(UNIX AND NOT APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	find_package(CXX11 REQUIRED)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAGS}")
+
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Werror-implicit-function-declaration -Wno-missing-field-initializers ${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+	set(CMAKE_C_FLAGS "-Wall -Wextra -Wno-unused-function -Werror-implicit-function-declaration -Wno-missing-braces -Wno-missing-field-initializers ${CMAKE_C_FLAGS} -std=gnu99 -fno-strict-aliasing")
 
 	target_compile_options(mbedcrypto PRIVATE -fPIC)
+	target_compile_options(websockets PRIVATE -fPIC)
 	set_target_properties(obs-websocket PROPERTIES PREFIX "")
-	target_link_libraries(obs-websocket
-		obs-frontend-api)
+	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")
 
 	file(GLOB locale_files data/locale/*.ini)
 

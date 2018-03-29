@@ -11,21 +11,18 @@
  * @since 4.0.0
  */
 OBSDataAutoRelease WSRequestHandler::HandleSetCurrentProfile(
-                WSRequestHandler *req, OBSDataAutoRelease data)
+		WSRequestHandler *req)
 {
-    if (!req->hasField("profile-name")) {
-        req->SendErrorResponse("missing request parameters");
-        return;
-    }
+	if (!req->hasField("profile-name")) {
+		return req->SendErrorResponse("missing request parameters");
+	}
 
-    QString profileName = obs_data_get_string(req->data, "profile-name");
-    if (!profileName.isEmpty()) {
-        // TODO : check if profile exists
-        obs_frontend_set_current_profile(profileName.toUtf8());
-        req->SendOKResponse();
-    } else {
-        req->SendErrorResponse("invalid request parameters");
-    }
+	string profileName = obs_data_get_string(req->data, "profile-name");
+	if (profileName.empty())
+		return req->SendErrorResponse("invalid request parameters");
+
+	obs_frontend_set_current_profile(profileName.c_str());
+	return req->SendOKResponse();
 }
 
 /**
@@ -39,13 +36,12 @@ OBSDataAutoRelease WSRequestHandler::HandleSetCurrentProfile(
  * @since 4.0.0
  */
 OBSDataAutoRelease WSRequestHandler::HandleGetCurrentProfile(
-		 WSRequestHandler *req, OBSDataAutoRelease data)
+		WSRequestHandler *req)
 {
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_string(response, "profile-name",
-        obs_frontend_get_current_profile());
-
-    req->SendOKResponse(response);
+	OBSDataAutoRelease response = obs_data_create();
+	obs_data_set_string(response, "profile-name",
+			obs_frontend_get_current_profile());
+	return req->SendOKResponse(response);
 }
 
 /**
@@ -58,16 +54,14 @@ OBSDataAutoRelease WSRequestHandler::HandleGetCurrentProfile(
  * @category profiles
  * @since 4.0.0
  */
-OBSDataAutoRelease WSRequestHandler::HandleListProfiles(WSRequestHandler *req,
-		OBSDataAutoRelease data)
+OBSDataAutoRelease WSRequestHandler::HandleListProfiles(WSRequestHandler *req)
 {
-    char** profiles = obs_frontend_get_profiles();
-    OBSDataArrayAutoRelease list =
-        Utils::StringListToArray(profiles, "profile-name");
-    bfree(profiles);
+	char **profiles = obs_frontend_get_profiles();
+	OBSDataArrayAutoRelease list = Utils::StringListToArray(profiles,
+			"profile-name");
+	bfree(profiles);
 
-    OBSDataAutoRelease response = obs_data_create();
-    obs_data_set_array(response, "profiles", list);
-
-    req->SendOKResponse(response);
+	OBSDataAutoRelease response = obs_data_create();
+	obs_data_set_array(response, "profiles", list);
+	return req->SendOKResponse(response);
 }

@@ -37,20 +37,21 @@ using namespace std;
 class Utils
 {
 public:
-	static obs_data_array_t *StringListToArray(char **strings, char *key);
+	static obs_data_array_t *StringListToArray(char **strings,
+			const char *key);
 
 	static obs_data_array_t *GetSceneItems(obs_source_t *source);
 	static obs_data_t *GetSceneItemData(obs_sceneitem_t *item);
 	static obs_sceneitem_t *GetSceneItemFromName(
-			obs_source_t *source, QString name);
+			obs_source_t *source, string name);
 	static obs_sceneitem_t *GetSceneItemFromId(obs_source_t *source,
 			size_t id);
 	static obs_sceneitem_t *GetSceneItemFromItem(obs_source_t *source,
 			obs_data_t *item);
-	static obs_source_t *GetTransitionFromName(QString transitionName);
-	static obs_source_t *GetSceneFromNameOrCurrent(QString sceneName);
+	static obs_source_t *GetTransitionFromName(string transitionName);
+	static obs_source_t *GetSceneFromNameOrCurrent(string sceneName);
 
-	static bool IsValidAlignment(const uint32_t alignment);
+	static bool IsValidAlignment(uint32_t alignment);
 
 	static obs_data_array_t *GetScenes();
 	static obs_data_t *GetSceneData(obs_source_t *source);
@@ -58,7 +59,7 @@ public:
 	static QSpinBox *GetTransitionDurationControl();
 	static int GetTransitionDuration();
 	static void SetTransitionDuration(int ms);
-	static bool SetTransitionByName(QString transitionName);
+	static bool SetTransitionByName(string transitionName);
 
 	static QPushButton *GetPreviewModeButtonControl();
 	static QLayout *GetPreviewLayout();
@@ -69,17 +70,15 @@ public:
 	static string OBSVersionString();
 
 	static QSystemTrayIcon *GetTrayIcon();
-	static void SysTrayNotify(
-			QString &text,
-			QSystemTrayIcon::MessageIcon n,
+	static void SysTrayNotify(QString &text, QSystemTrayIcon::MessageIcon n,
 			QString title = QString("obs-websocket"));
 
 	static const char *GetRecordingFolder();
 	static bool SetRecordingFolder(const char *path);
 
-	static QString ParseDataToQueryString(obs_data_t *data);
+	static string ParseDataToQueryString(obs_data_t *data);
 
-	static obs_hotkey_t *FindHotkeyByName(QString name);
+	static obs_hotkey_t *FindHotkeyByName(string name);
 
 	static bool ReplayBufferEnabled();
 	static void StartReplayBuffer();

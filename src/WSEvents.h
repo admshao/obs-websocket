@@ -26,85 +26,82 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <QListWidgetItem>
 
 class WSEvents {
-  public:
-    explicit WSEvents();
-    ~WSEvents();
+public:
+	explicit WSEvents();
+	~WSEvents();
+
+	bool HeartbeatIsActive;
 	deque<OBSDataAutoRelease> updatesToSend;
-    static void FrontendEventHandler(
-        enum obs_frontend_event event, void* privateData);
-    static WSEvents* Instance;
-    void connectTransitionSignals(obs_source_t* transition);
-    void connectSceneSignals(obs_source_t* scene);
 
-    uint64_t GetStreamingTime();
-    const char* GetStreamingTimecode();
-    uint64_t GetRecordingTime();
-    const char* GetRecordingTimecode();
+	static void FrontendEventHandler(enum obs_frontend_event event,
+			void *privateData);
 
-    bool HeartbeatIsActive;
+	static WSEvents *Instance;
 
-  private slots:
-    void deferredInitOperations();
-    void StreamStatus();
-    void Heartbeat();
-    void TransitionDurationChanged(int ms);
-    void SelectedSceneChanged(
-        QListWidgetItem* current, QListWidgetItem* prev);
+	void connectTransitionSignals(obs_source_t *transition);
+	void connectSceneSignals(obs_source_t *scene);
 
-  private:
-    OBSSource currentScene;
-    OBSSource currentTransition;
+	uint64_t GetStreamingTime();
+	string GetStreamingTimecode();
+	uint64_t GetRecordingTime();
+	string GetRecordingTimecode();
 
-    bool pulse;
+	void deferredInitOperations();
+	void StreamStatus();
+	void Heartbeat();
+	void TransitionDurationChanged(int ms);
+	void SelectedSceneChanged(QListWidgetItem *current,
+			QListWidgetItem *prev);
 
-    bool _streamingActive;
-    bool _recordingActive;
+private:
+	OBSSource currentScene;
+	OBSSource currentTransition;
 
-    uint64_t _streamStarttime;
-    uint64_t _recStarttime;
+	bool pulse;
+	bool _streamingActive;
+	bool _recordingActive;
 
-    uint64_t _lastBytesSent;
-    uint64_t _lastBytesSentTime;
+	uint64_t _streamStarttime;
+	uint64_t _recStarttime;
+	uint64_t _lastBytesSent;
+	uint64_t _lastBytesSentTime;
 
-    void broadcastUpdate(const char* updateType,
-        obs_data_t* additionalFields);
+	void broadcastUpdate(const char *updateType,
+			obs_data_t *additionalFields = nullptr);
 
-    void OnSceneChange();
-    void OnSceneListChange();
-    void OnSceneCollectionChange();
-    void OnSceneCollectionListChange();
+	void OnSceneChange();
+	void OnSceneListChange();
+	void OnSceneCollectionChange();
+	void OnSceneCollectionListChange();
 
-    void OnTransitionChange();
-    void OnTransitionListChange();
+	void OnTransitionChange();
+	void OnTransitionListChange();
 
-    void OnProfileChange();
-    void OnProfileListChange();
+	void OnProfileChange();
+	void OnProfileListChange();
 
-    void OnStreamStarting();
-    void OnStreamStarted();
-    void OnStreamStopping();
-    void OnStreamStopped();
+	void OnStreamStarting();
+	void OnStreamStarted();
+	void OnStreamStopping();
+	void OnStreamStopped();
 
-    void OnRecordingStarting();
-    void OnRecordingStarted();
-    void OnRecordingStopping();
-    void OnRecordingStopped();
+	void OnRecordingStarting();
+	void OnRecordingStarted();
+	void OnRecordingStopping();
+	void OnRecordingStopped();
+	void OnReplayStarting();
+	void OnReplayStarted();
+	void OnReplayStopping();
+	void OnReplayStopped();
 
-    void OnReplayStarting();
-    void OnReplayStarted();
-    void OnReplayStopping();
-    void OnReplayStopped();
+	void OnStudioModeSwitched(bool enabled);
+	void OnExit();
 
-    void OnStudioModeSwitched(bool enabled);
-
-    void OnExit();
-
-    static void OnTransitionBegin(void* param, calldata_t* data);
-
-    static void OnSceneReordered(void* param, calldata_t* data);
-    static void OnSceneItemAdd(void* param, calldata_t* data);
-    static void OnSceneItemDelete(void* param, calldata_t* data);
-    static void OnSceneItemVisibilityChanged(void* param, calldata_t* data);
+	static void OnTransitionBegin(void *param, calldata_t *data);
+	static void OnSceneReordered(void *param, calldata_t *data);
+	static void OnSceneItemAdd(void *param, calldata_t *data);
+	static void OnSceneItemDelete(void *param, calldata_t *data);
+	static void OnSceneItemVisibilityChanged(void *param, calldata_t *data);
 };
 
 #endif // WSEVENTS_H
